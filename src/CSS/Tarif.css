@@ -1,0 +1,91 @@
+.pricing-table {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    padding:0px  40px;
+}
+
+.pricing-table h1 {
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.pricing-table p {
+    margin-bottom: 40px;
+    color: #777;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.plans {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.plan {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    width: 20%;
+    height: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.plan h2 {
+    color: #ff5722;
+    padding: 20px 0px;
+}
+
+.price {
+    font-size: 50px;
+    margin: 40px 0;
+    color: #007bff;
+}
+
+.plan ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.plan li {
+    margin: 10px 0;
+    color: #555;
+}
+
+.plan button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.plan button:hover {
+    background-color: #0056b3;
+}
+
+.highlighted {
+    background-color: #007bff;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.highlighted h2,
+.highlighted .price,
+.highlighted li {
+    color: white;
+}
+
+.highlighted button {
+    background-color: #fff;
+    color: #007bff;
+}
+
+.highlighted button:hover {
+    background-color: #e6e6e6;
+}
+

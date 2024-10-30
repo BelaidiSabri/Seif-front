@@ -1,0 +1,15 @@
+.nav-footer{
+    display: flex;
+    justify-content: space-around;
+   }
+  .footer-spa{
+    font-weight: 600;
+    color: #000;
+    font-family:Arial, Helvetica, sans-serif;
+    cursor: pointer;
+    text-decoration: none;
+
+  }
+  .footer-spa:hover{
+    color: #00B4CC;
+  }

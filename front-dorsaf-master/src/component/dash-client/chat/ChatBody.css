@@ -1,0 +1,72 @@
+.message__container {
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.message__chats {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+}
+
+.message__chats--right {
+  align-self: flex-end;
+  text-align: right;
+}
+
+.message__chats--left {
+  align-self: flex-start;
+  text-align: left;
+}
+
+.message__sender {
+  background-color: #007bff; /* Blue color for current user's message */
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 75%; /* Limit the width to prevent overflow */
+  overflow-wrap: break-word; /* Break long words to wrap onto the next line */
+  word-wrap: break-word; /* Fallback for older browsers */
+  overflow: hidden; /* Hide overflow content */
+  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+}
+
+.message__sender--highlight {
+  background-color: #007bff; /* Ensure this matches the current user's color */
+}
+
+.message__recipient {
+  background-color: #f1f1f1; /* Gray color for recipient's message */
+  color: black;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 75%; /* Limit the width to prevent overflow */
+  overflow-wrap: break-word; /* Break long words to wrap onto the next line */
+  word-wrap: break-word; /* Fallback for older browsers */
+  overflow: hidden; /* Hide overflow content */
+  text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+}
+
+.sender__name {
+  font-weight: bold;
+}
+
+.message__status {
+  text-align: center;
+  font-style: italic;
+}
+
+.message-type {
+  border: none;
+  width: 60%;
+  height: 70px;
+  border-radius: 10px;
+  padding: 10px;
+  outline: #007bff;
+}
+
+.send-icon {
+  scale: 1.4;
+  transform: translateX(-2px);
+}
