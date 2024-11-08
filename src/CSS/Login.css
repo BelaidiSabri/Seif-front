@@ -99,22 +99,38 @@
 }
 .error{
 	color: red;
-text-align: center;
+text-align: left;
 font-weight: 500;
+width: 100%;
 }
 
 .input-wrapper-signup{
 	/* background: #e0dede; */
-	background: white;
-	border-radius: 5px;
 	width: 70%;
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	display: flex;
-	gap: 10px;
+	gap: 5px;
 	overflow: hidden;
+	.input{
+		border-radius: 5px;
+		background-color: white;
+	}
 }
+.password-input{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	.icon{
+		position: absolute;
+		right: 10px;
+	}
+}
+
 .input-wrapper-login{
 	background: #e0dede;
 	/* background: white; */

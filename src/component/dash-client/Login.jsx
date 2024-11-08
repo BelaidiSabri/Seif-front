@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import "../../CSS/Login.css";
 import axios from "axios";
@@ -6,11 +6,27 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Bootstrap from "bootstrap/dist/js/bootstrap.bundle"; // Import Bootstrap JS here
+
 
 function Login({ socket }) {
   const [registerError, setRegisterError] = useState(null);
   const [loginError, setLoginError] = useState(null);
   const navigate = useNavigate();
+  const [showToast, setShowToast] = useState(false); // State to manage toast visibility
+  const checkboxRef = useRef(null); 
+  const toastRef = useRef(null);
+
+
+
+  useEffect(() => {
+    if (showToast && toastRef.current) {
+      const toast = new Bootstrap.Toast(toastRef.current);
+      toast.show();
+    }
+  }, [showToast]);
+
 
   const [visibility, setVisibility] = useState({
     signupPassword: false,
@@ -67,10 +83,15 @@ function Login({ socket }) {
       }
 
       const { confirmPassword, ...registerData } = data;
-      const res = await axios.post("http://localhost:5000/user/register", registerData);
-      console.log(res.data);
+      await axios.post("http://localhost:5000/user/register", registerData);
       resetSignup();
-      // Optionally, you can show a success message or automatically log the user in
+      setRegisterError(null);
+
+      if (checkboxRef.current) {
+        checkboxRef.current.checked = true;
+      }
+
+      setShowToast(true);
     } catch (error) {
       setRegisterError("Registration failed. Please try again.");
     }
@@ -79,8 +100,29 @@ function Login({ socket }) {
   return (
     <div className="l">
       <div className="main">
-        <input type="checkbox" id="chk" aria-hidden="true" />
-
+        <input ref={checkboxRef} type="checkbox" id="chk" aria-hidden="true" />
+                {/* Toast Notification */}
+        <div
+          ref={toastRef}
+          className="toast align-items-center text-white bg-success border-0 position-fixed bottom-0 start-0 m-3"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          data-bs-autohide="true"
+          data-bs-delay="3000"
+          style={{ zIndex: 1050 }}
+        >
+          <div className="d-flex">
+            <div className="toast-body">Signup Successful!</div>
+            <button
+              type="button"
+              className="btn-close btn-close-white me-2 m-auto"
+              onClick={() => setShowToast(false)}
+              aria-label="Close"
+            ></button>
+          </div>
+        </div>
+    
         <div className="signup">
           <form onSubmit={handleSignupSubmit(registerSubmit)}>
             <label className="label" htmlFor="chk" aria-hidden="true">
@@ -96,8 +138,8 @@ function Login({ socket }) {
                     <input {...field} className="input" type="text" placeholder="Name" />
                   )}
                 />
-              </div>
               {signupErrors.name && <p className="error">{signupErrors.name.message}</p>}
+              </div>
 
               <div className="input-wrapper-signup">
                 <Controller
@@ -108,8 +150,8 @@ function Login({ socket }) {
                     <input {...field} className="input" type="text" placeholder="Role" />
                   )}
                 />
-              </div>
               {signupErrors.role && <p className="error">{signupErrors.role.message}</p>}
+              </div>
 
               <div className="input-wrapper-signup">
                 <Controller
@@ -126,10 +168,12 @@ function Login({ socket }) {
                     <input {...field} className="input" type="email" placeholder="Email" />
                   )}
                 />
-              </div>
               {signupErrors.email && <p className="error">{signupErrors.email.message}</p>}
+              </div>
 
               <div className="input-wrapper-signup">
+                <div className="password-input">
+
                 <Controller
                   name="password"
                   control={signupControl}
@@ -140,40 +184,44 @@ function Login({ socket }) {
                       className="input"
                       type={visibility.signupPassword ? "text" : "password"}
                       placeholder="Password"
+                      />
+                    )}
                     />
-                  )}
-                />
                 <FontAwesomeIcon
                   icon={visibility.signupPassword ? faEyeSlash : faEye}
                   onClick={() => toggleVisibility("signupPassword")}
                   className="icon"
                   style={{ cursor: "pointer" }}
-                />
-              </div>
+                  />
+                  </div>
               {signupErrors.password && <p className="error">{signupErrors.password.message}</p>}
+              </div>
 
               <div className="input-wrapper-signup">
+                <div className="password-input">
+
                 <Controller
                   name="confirmPassword"
                   control={signupControl}
                   rules={{ required: "Confirm Password is required" }}
                   render={({ field }) => (
                     <input
-                      {...field}
-                      className="input"
-                      type={visibility.confirmPassword ? "text" : "password"}
-                      placeholder="Confirm Password"
+                    {...field}
+                    className="input"
+                    type={visibility.confirmPassword ? "text" : "password"}
+                    placeholder="Confirm Password"
                     />
                   )}
-                />
+                  />
                 <FontAwesomeIcon
                   icon={visibility.confirmPassword ? faEyeSlash : faEye}
                   onClick={() => toggleVisibility("confirmPassword")}
                   className="icon"
                   style={{ cursor: "pointer" }}
-                />
-              </div>
+                  />
+                  </div>
               {signupErrors.confirmPassword && <p className="error">{signupErrors.confirmPassword.message}</p>}
+              </div>
 
               <button type="submit" className="button">
                 Sign up

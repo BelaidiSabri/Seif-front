@@ -3,6 +3,7 @@ import React, { useContext, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import Footer from "./Footer";
 import { GlobalState } from "../../GlobalState";
+import LocationPicker from "./LocationPicker";
 // Assuming you have a book-icon.png file in the same directory
 
 const Dashboard = () => {

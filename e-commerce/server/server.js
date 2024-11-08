@@ -6,7 +6,8 @@ const User = require('./models/User.model');
 const Chat = require('./models/Chat.model');
 const UserRoute = require('./routes/UserRoute');
 const ChatRoute = require('./routes/ChatRoute');
-const ProductRoute = require('./routes/ProductRoute')
+const ProductRoute = require('./routes/ProductRoute');
+const path = require('path');
 require('./db/cnx'); // Ensure your DB connection is set up here
 
 const app = express();
@@ -20,6 +21,8 @@ const io = socketIO(server, {
 
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000' }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 let users = [];
 app.use("/user", UserRoute);
