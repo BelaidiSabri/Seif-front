@@ -13,27 +13,34 @@ const Cart = () => {
 
   return (
     <div className="cart-container">
-      <h2>Shopping Cart</h2>
+      <div className="cart-title">
+      <i class="fa-solid fa-cart-shopping fa-2x" style={{scale:'0.8'}}></i>
+      <h3>Panier</h3>
+      </div>
       {cart.length === 0 ? (
-        <p>Your cart is empty</p>
+        <p>Votre panier est vide</p>
       ) : (
         <>
           <ul>
             {cart.map((item) => (
               <li key={item.id} className="cart-item">
+                <div className="item-wrapper">
                 <img src={`${baseURL}${item.images[0]}` || "/placeholder.jpg"} alt={item.nom} className="cart-item-image" />
                 <div className="cart-item-details">
+                  <div className="cart-info">
                   <h3>{item.nom}</h3>
-                  <p>Price: {item.prix}</p>
-                  <p>Quantity: {item.quantity}</p>
-                  <button onClick={() => removeFromCart(item.id)} className="remove-btn">Remove</button>
+                  <p>Prix: {item.prix}</p>
+                  <p>Quantité: {item.quantity}</p>
+                  </div>
+                  <button onClick={() => removeFromCart(item.id)} className="remove-btn">Retirer</button>
+                </div>
                 </div>
               </li>
             ))}
           </ul>
           <div className="cart-summary">
-            <h3>Total: {calculateTotal()} TND</h3>
-            <button onClick={clearCart} className="clear-cart-btn">Clear Cart</button>
+            <h4>Total: {calculateTotal()} TND</h4>
+            <button onClick={clearCart} className="clear-cart-btn">Vider le panier</button>
           </div>
         </>
       )}
