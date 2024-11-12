@@ -9,7 +9,7 @@ const NavBar = () => {
   return (
     <nav className="navbarrr">
       <div className="navbar-container">
-        <div className="navbar-search">
+      {/*   <div className="navbar-search">
           <select
             name="role"
             id="role"
@@ -28,7 +28,7 @@ const NavBar = () => {
 
           <input type="text" placeholder="Ou.." />
           <FaSearch className="search-icon" />
-        </div>
+        </div> */}
         <div className="navbar-icons">
           <a href="/Cart" className="navbar-icon">
             <FaShoppingCart className="navbar-icon" />
