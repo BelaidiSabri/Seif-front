@@ -16,12 +16,13 @@ import {
 import { Link } from "react-router-dom";
 
 class Homee extends React.Component {
-  componentDidMount() {
+
+ /*  componentDidMount() {
     // Include jQuery and Fancybox initialization if needed
     $(document).ready(function () {
       $("[data-fancybox]").fancybox();
     });
-  }
+  } */
 
   render() {
     return (

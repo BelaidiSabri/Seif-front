@@ -15,9 +15,9 @@ const ProductComponent = ({ product }) => {
       <div className="product-card-body">
         <h5 className="product-card-title">{product.nom}</h5>
         <p className="product-card-category text-muted">{product.categorie}</p>
-        {product.status === 'vente' && (
-          <p className="product-card-price"><strong>Prix:</strong> {product.formattedPrice}</p>
-        )}
+        <p className="product-card-price">
+          <strong>Prix:</strong> {product.status === 'vente' ? product.formattedPrice : product.status}
+        </p>
         <p className="product-card-location"><strong>Ville:</strong> {product.ville}</p>
         <p className="product-card-contact"><strong>Contact:</strong> {product.numtel || 'Non disponible'}</p>
       </div>

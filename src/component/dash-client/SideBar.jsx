@@ -39,11 +39,11 @@ const handleLogout = () => {
             <i className="fa-solid fa-box"></i>Produits
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link to="/Accueil">
               <i className="fa-solid fa-house"></i> Fil Accueil
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link to="/Offer">
               <i className="fa-solid fa-money-check-dollar"></i> Mes Offres
