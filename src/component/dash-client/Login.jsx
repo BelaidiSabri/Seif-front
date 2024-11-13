@@ -142,15 +142,31 @@ function Login({ socket }) {
               </div>
 
               <div className="input-wrapper-signup">
-                <Controller
-                  name="role"
-                  control={signupControl}
-                  rules={{ required: "Role is required" }}
-                  render={({ field }) => (
-                    <input {...field} className="input" type="text" placeholder="Role" />
-                  )}
-                />
-              {signupErrors.role && <p className="error">{signupErrors.role.message}</p>}
+              <Controller
+    name="role"
+    control={signupControl}
+    rules={{ required: "Role is required" }}
+    render={({ field }) => (
+      <select
+        {...field}
+        style={{
+          width: "100%",
+          padding: "11px 35px",
+          backgroundColor: "white",
+          borderRadius: "5px",
+          border: "none",
+          outline: "none",
+        }}
+      >
+        <option value="" disabled>
+          Select Role
+        </option>
+        <option value="client">Client</option>
+        <option value="fournisseur">Fournisseur</option>
+      </select>
+    )}
+  />
+  {signupErrors.role && <p className="error">{signupErrors.role.message}</p>}
               </div>
 
               <div className="input-wrapper-signup">
