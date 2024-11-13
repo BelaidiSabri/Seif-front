@@ -98,9 +98,9 @@ const Dashboard = () => {
           <div className="off-h-butt">
             <h3>
               Mes derniers offres publics           
-               <span> (Nombre)</span>
+               {/* <span> (Nombre)</span> */}
             </h3>
-            <button className="consult1-button">Consultez</button>
+            {/* <button className="consult1-button">Consultez</button> */}
           </div>
           <br />
           {products.slice(-3).map((item) => (

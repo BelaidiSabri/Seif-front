@@ -270,30 +270,34 @@ const productCtrl = {
 
   getUserProducts: async (req, res) => {
     try {
-      const { page = 1, limit = 10 } = req.query;
-      const userId = req.user.id;
-
+      const { page = 1, limit = 10, userId } = req.query;
+  
+      if (!userId) {
+        return res.status(400).json({ msg: "User ID is required" });
+      }
+  
       const products = await Product.find({ user: userId })
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .sort({ createdAt: -1 });
-
+  
       const count = await Product.countDocuments({ user: userId });
-
+  
       if (!products || products.length === 0) {
         return res.status(404).json({ msg: "No products found for this user" });
       }
-
+  
       res.json({
         products,
         totalPages: Math.ceil(count / limit),
         currentPage: page,
-        totalProducts: count
+        totalProducts: count,
       });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
   },
+  
 
   getNearbyOffers: async (req, res) => {
     const { longitude, latitude, maxDistance = 10000, limit = 10, page = 1 } = req.query; // maxDistance in meters

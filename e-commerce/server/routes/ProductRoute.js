@@ -51,7 +51,7 @@ router.put(
 router.delete('/delete/:id', auth, productCtrl.deleteProduct);
 
 // Get logged-in user's products
-router.get('/user/products', auth, productCtrl.getUserProducts);
+router.get('/user/products', productCtrl.getUserProducts);
 
 /*
  * Alternative URL patterns for the same endpoints
@@ -85,7 +85,7 @@ router.get('/recent/products', productCtrl.getAllProducts);
 router.get('/popular/products', productCtrl.getAllProducts);
 
 // Products statistics
-router.get('/stats/user/:userId', auth, productCtrl.getUserProducts);
+router.get('/stats/user/:userId', productCtrl.getUserProducts);
 router.get('/stats/category/:category', productCtrl.getAllProducts);
 
 /**

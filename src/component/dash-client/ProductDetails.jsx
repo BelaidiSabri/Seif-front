@@ -7,6 +7,7 @@ import { useCart } from "../../contexts/CartContext";
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [showCheckout, setShowCheckout] = useState(false); // For toggling the checkout modal
   const { addToCart } = useCart();
   const baseURL = "http://localhost:5000";
 
@@ -22,6 +23,13 @@ const ProductDetails = () => {
 
     fetchProductDetails();
   }, [id]);
+
+  const openCheckout = () => setShowCheckout(true);
+  const closeCheckout = () => setShowCheckout(false);
+  const handlePayment = () => {
+    alert("Payment Successful!"); // Mock success alert
+    closeCheckout();
+  };
 
   if (!product) return <p>Loading...</p>;
 
@@ -71,10 +79,31 @@ const ProductDetails = () => {
             <button className="custom-btn custom-add-to-cart" onClick={() => addToCart(product)}>
               Ajouter à la carte
             </button>
-            <button className="custom-btn custom-buy-now">Acheter</button>
+            <button className="custom-btn custom-buy-now" onClick={openCheckout}>
+              Acheter
+            </button>
           </div>
         </div>
       </div>
+
+      {showCheckout && (
+        <div className="checkout-modal">
+          <div className="checkout-modal-content">
+            <h3>Stripe Checkout</h3>
+            <p><strong>Product:</strong> {product.nom}</p>
+            <p><strong>Amount:</strong> {product.prix} Dt</p>
+            <input type="text" placeholder="Card Number" className="checkout-input" />
+            <input type="text" placeholder="MM/YY" className="checkout-input" />
+            <input type="text" placeholder="CVC" className="checkout-input" />
+            <button onClick={handlePayment} className="custom-btn custom-confirm-btn">
+              Confirm Payment
+            </button>
+            <button onClick={closeCheckout} className="custom-btn custom-cancel-btn">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
