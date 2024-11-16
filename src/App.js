@@ -4,11 +4,11 @@ import NavBar from "./component/dash-client/NavBar";
 import Sidebar from "./component/dash-client/SideBar";
 import Login from "./component/dash-client/Login";
 import Accueil from "./component/dash-client/Accueil";
-import Offer from "./component/dash-client/Offer";
+// import Offer from "./component/dash-client/Offer";
 import Profil from "./component/dash-client/Profil";
 import Livre from "./component/dash-client/Livre";
 import Tarif from "./component/dash-client/Tarif";
-import NouveauOffre from "./component/dash-client/NouveauOffre";
+// import NouveauOffre from "./component/dash-client/NouveauOffre";
 import { Modal } from "react-bootstrap";
 import Dashboard from "./component/dash-client/Dashboard";
 import Chat from "./component/dash-client/chat/Chat";
@@ -24,6 +24,8 @@ import ProductsPage from "./component/dash-client/ProductPage";
 import ProductDetails from "./component/dash-client/ProductDetails";
 import Cart from "./component/dash-client/Cart";
 import { CartProvider } from "./contexts/CartContext";
+import OfferManagement from "./component/dash-client/MyOffer";
+import AdminPanel from "./component/dash-client/adminPanel";
 
 const AppContent = ({ socket, token }) => {
   const location = useLocation();
@@ -39,6 +41,7 @@ const AppContent = ({ socket, token }) => {
 
   return (
     <div>
+
       {token ? (
         <>
           <Sidebar />
@@ -48,12 +51,13 @@ const AppContent = ({ socket, token }) => {
               <Route path="/Livre" element={<Livre />} />
               <Route path="/Products" element={<ProductsPage />} />
               <Route path="/product/:id" element={<ProductDetails />} />
-              <Route path="/Offer" element={<Offer />} />
+              {/* <Route path="/Offer" element={<Offer />} /> */}
+              <Route path="/Offer" element={<OfferManagement />} />
               <Route path="/Cart" element={<Cart />} />
               <Route path="/Profil" element={<Profil />} />
               <Route path="/Tarif" element={<Tarif />} />
               <Route path="/Payment" element={<Payment />} />
-              <Route path="/NouveauOffre" element={<NouveauOffre />} />
+              {/* <Route path="/NouveauOffre" element={<NouveauOffre />} /> */}
               <Route path="/Modal" element={<Modal />} />
               <Route path="/" element={<Dashboard />} />
               <Route path="/Accueil" element={<Accueil />} />
@@ -65,6 +69,7 @@ const AppContent = ({ socket, token }) => {
         </>
       ) : (
         <Routes>
+          <Route path="/admin" element={<AdminPanel/>}></Route>
           <Route path="/" element={<Homee />} />
           <Route path="/login" element={<Login socket={socket} />} />
         </Routes>

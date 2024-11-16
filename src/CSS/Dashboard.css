@@ -21,7 +21,7 @@ display: grid;
 grid-template-columns: repeat(3,1fr);
 /* padding: 20px 100px; */
 }
-.card {
+.card-dash {
     flex: 1;
     padding: 20px;
     margin: 0 10px;
@@ -31,21 +31,21 @@ grid-template-columns: repeat(3,1fr);
     position: relative;
     border: none;
 }
-.card *{
+.card-dash *{
     color: white;
 }
 
-.card.blue {
+.card-dash.blue {
     background-color: #4169E1;
     
 }
 
-.card.white {
+.card-dash.white {
     background-color: #00CED1;
     color: #333;
 }
 
-.card.red {
+.card-dash.red {
     background-color: #FFA07A;
 }
 

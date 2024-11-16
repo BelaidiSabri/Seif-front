@@ -76,17 +76,17 @@ const Dashboard = () => {
     <div className="dashboard">
       <h2>Dashboard :</h2>
       <div className="top-cards">
-        <div className="card blue">
+        <div className="card-dash blue">
           <h3>Vendée</h3>
           <p>(Budget)</p>
           <h2>0 dt</h2>
         </div>
-        <div className="card white">
+        <div className="card-dash white">
           <h3>Products</h3>
           <p>(Nombre)</p>
           <h2>{products.length}</h2>
         </div>
-        <div className="card red">
+        <div className="card-dash red">
           <h3>Don</h3>
           <p>(Nombre)</p>
           <h2>{products.filter(product => product.status === "don").length}</h2>

@@ -1,0 +1,224 @@
+.my-offer-containerrs {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.main1-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+}
+
+.add-offer-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  justify-self: end;
+  margin: 1rem;
+}
+
+.add-offer-button:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+}
+
+.add-offer-button:active {
+  transform: translateY(0);
+}
+
+/* Table Styles */
+.crud-table {
+  padding: 2rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+th {
+  background: #f7fafc;
+  padding: 1rem;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  text-align: left;
+  border-bottom: 2px solid #edf2f7;
+}
+
+td {
+  padding: 1rem;
+  color: #4a5568;
+  border-bottom: 1px solid #edf2f7;
+  font-size: 0.95rem;
+}
+
+tr:hover td {
+  background: #f7fafc;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.offer-edit-button, 
+.offer-delete-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.offer-edit-button {
+  background: #edf2f7;
+  color: #2d3748;
+  margin-right: 1rem;
+}
+
+.offer-edit-button:hover {
+  background: #e2e8f0;
+}
+
+.offer-delete-button {
+  background: #fff;
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
+}
+
+.offer-delete-button:hover {
+  background: #e53e3e;
+  color: white;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #f7fafc;
+  border-top: 1px solid #edf2f7;
+}
+
+.pagination-info {
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #4a5568;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.pagination button:disabled {
+  background: #f7fafc;
+  color: #a0aec0;
+  cursor: not-allowed;
+  border-color: #edf2f7;
+}
+
+.pagination button:not(:disabled):hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+/* Confirmation Modal */
+.confirmation-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  padding: 2rem;
+}
+
+.confirmation-modal h2 {
+  color: #2d3748;
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+}
+
+.confirmation-modal p {
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.confirmation-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.offer-confirm-button {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.offer-confirm-button:hover {
+  background: #c53030;
+}
+
+.offer-cancel-button {
+  background: white;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.offer-cancel-button:hover {
+  background: #f7fafc;
+}

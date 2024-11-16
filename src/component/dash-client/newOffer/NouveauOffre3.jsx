@@ -1,34 +1,14 @@
 import React, { useState } from 'react';
-import '../../CSS/NouveauOffre.css';
+import '../../../CSS/NouveauOffre.css';
 import axios from 'axios';
 import Cookies from "js-cookie"
-import Map from './Map';
-import LocationPicker from './LocationPicker';
-import cities from '../../data/cities';
+import Map from '../Map';
+import LocationPicker from '../LocationPicker';
+import cities from '../../../data/cities';
+import { categories } from './categories';
 
 const NouveauOffre = () => {
-  const categories = [
-    {
-      id: 'school',
-      name: 'Livres & Fournitures Scolaires',
-      subcategories: ['Manuels scolaires', 'Cahiers', 'Sacs à dos', 'Calculatrices', 'Autre']
-    },
-    {
-      id: 'books',
-      name: 'Livres',
-      subcategories: ['Romans', 'Documentaires', 'Livres pour enfants', 'Autre']
-    },
-    {
-      id: 'writing',
-      name: 'Instruments d\'Écriture',
-      subcategories: ['Stylos/Crayons', 'Marqueurs', 'Gommes', 'Autre']
-    },
-    {
-      id: 'basic',
-      name: 'Fournitures de Base',
-      subcategories: ['Scotch', 'Ciseaux', 'Agrafeuse', 'Trombones', 'Autre']
-    }
-  ];
+
 
   const initialState = {
     nom: "",

@@ -6,11 +6,11 @@
     margin-bottom: 20px;
 }
 
-.card {
+.product-card {
     transition: transform 0.2s;
 }
 
-.card:hover {
+.product-card:hover {
     transform: scale(1.05);
 }
 

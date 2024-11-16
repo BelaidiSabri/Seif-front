@@ -118,3 +118,19 @@ button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
 }
+.toast {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: auto;
+  max-width: 300px; /* Adjust the width as needed */
+  padding: 10px;
+}
+
+.toast-body {
+  flex-grow: 1; /* Allows the message to take up remaining space */
+}
+
+.btn-close {
+  margin-left: 10px; /* Adjust the space between the text and the close button */
+}

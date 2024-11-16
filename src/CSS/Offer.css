@@ -16,7 +16,7 @@
     padding: 0px 50px;
   }
   
-  .new1-offer-button {
+/*   .new1-offer-button {
     display: block;
     margin: 0 auto 20px;
     padding: 10px 20px;
@@ -29,7 +29,7 @@
     text-decoration: none;
     text-align: center;
     max-width: 40%;
-  }
+  } */
   .new1-offer-button:hover{
     background-color: #fda585;
     color: #fff;

@@ -31,6 +31,16 @@ const ProductDetails = () => {
     closeCheckout();
   };
 
+  const handleAction = () => {
+    if (product.status === "don") {
+      alert("Request sent to get this product!");
+    } else if (product.status === "echange") {
+      alert("Proceed to exchange this product.");
+    } else {
+      openCheckout();
+    }
+  };
+
   if (!product) return <p>Loading...</p>;
 
   return (
@@ -42,20 +52,38 @@ const ProductDetails = () => {
               {product.imageUrls && product.imageUrls.length > 0 ? (
                 product.imageUrls.map((imageUrl, index) => (
                   <div key={index} className={`carousel-item ${index === 0 ? "active" : ""}`}>
-                    <img src={`${baseURL}${product.images[0]}`} className="d-block w-100 custom-product-image" alt={product.nom} />
+                    <img
+                      src={`${baseURL}${product.images[0]}`}
+                      className="d-block w-100 custom-product-image"
+                      alt={product.nom}
+                    />
                   </div>
                 ))
               ) : (
                 <div className="carousel-item active">
-                  <img src="/placeholder.jpg" alt="Placeholder" className="d-block w-100 custom-product-image" />
+                  <img
+                    src="/placeholder.jpg"
+                    alt="Placeholder"
+                    className="d-block w-100 custom-product-image"
+                  />
                 </div>
               )}
             </div>
-            <a className="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
+            <a
+              className="carousel-control-prev"
+              href="#productCarousel"
+              role="button"
+              data-slide="prev"
+            >
               <span className="carousel-control-prev-icon" aria-hidden="true"></span>
               <span className="sr-only">Previous</span>
             </a>
-            <a className="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
+            <a
+              className="carousel-control-next"
+              href="#productCarousel"
+              role="button"
+              data-slide="next"
+            >
               <span className="carousel-control-next-icon" aria-hidden="true"></span>
               <span className="sr-only">Next</span>
             </a>
@@ -76,11 +104,18 @@ const ProductDetails = () => {
             <p><strong>Quantité disponible:</strong> {product.quantityDispo}</p>
           )}
           <div className="custom-button-group mt-4">
-            <button className="custom-btn custom-add-to-cart" onClick={() => addToCart(product)}>
+            <button
+              className="custom-btn custom-add-to-cart"
+              onClick={() => addToCart(product)}
+            >
               Ajouter à la carte
             </button>
-            <button className="custom-btn custom-buy-now" onClick={openCheckout}>
-              Acheter
+            <button className="custom-btn custom-buy-now" onClick={handleAction}>
+              {product.status === "don"
+                ? "Demander"
+                : product.status === "echange"
+                ? "Échanger"
+                : "Acheter"}
             </button>
           </div>
         </div>

@@ -181,8 +181,8 @@ const productCtrl = {
       // Update basic fields if provided
       if (nom) updateFields.nom = nom;
       if (description) updateFields.description = description;
-      if (prix) updateFields.prix = prix;
-      if (quantityDispo) updateFields.quantityDispo = quantityDispo;
+      // if (prix) updateFields.prix = prix;
+      // if (quantityDispo) updateFields.quantityDispo = quantityDispo;
       if (communauté) updateFields.communauté = communauté;
       if (adresse) updateFields.adresse = adresse;
       if (status) updateFields.status = status;
@@ -232,20 +232,21 @@ const productCtrl = {
   },
 
   deleteProduct: async (req, res) => {
+    
     try {
       const product = await Product.findById(req.params.id);
-      
+  
       if (!product) {
         return res.status(404).json({ msg: "Product not found" });
       }
-
+  
       // Verify product ownership
-      if (product.user.toString() !== req.user.id) {
+      if (!req.user || product.user.toString() !== req.user.id) {
         return res.status(403).json({ msg: "Not authorized to delete this product" });
       }
-
+  
       // Delete associated images from filesystem
-      if (product.images && product.images.length > 0) {
+      if (Array.isArray(product.images) && product.images.length > 0) {
         product.images.forEach(imagePath => {
           const fullPath = path.join(__dirname, '..', imagePath);
           fs.unlink(fullPath, err => {
@@ -253,17 +254,18 @@ const productCtrl = {
           });
         });
       }
-
+  
       // Remove product from user's products array
       await User.findByIdAndUpdate(req.user.id, {
         $pull: { products: req.params.id }
       });
-
+  
       // Delete the product
       await Product.findByIdAndDelete(req.params.id);
-      
+  
       res.json({ msg: "Product deleted successfully" });
     } catch (error) {
+      console.error('Error in deleteProduct:', error);
       return res.status(500).json({ msg: error.message });
     }
   },
