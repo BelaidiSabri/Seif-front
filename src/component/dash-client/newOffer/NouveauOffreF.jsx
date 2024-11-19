@@ -35,6 +35,7 @@ const NouveauOffreF = ({
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const role = localStorage.getItem("role")
 
   const [newCommunity, setNewCommunity] = useState("");
   const [communities, setCommunities] = useState([
@@ -417,9 +418,10 @@ const NouveauOffreF = ({
             onChange={(e) => handleInputChange(e, "status")}
           >
             <option value="">Sélectionner un type</option>
+            {role==="fournissuer" && <option value="vente">Vente</option>}
             <option value="echange">Échange</option>
             <option value="don">Don</option>
-            <option value="vente">Vente</option>
+            
           </select>
           {errors.status && <span className="error-text">{errors.status}</span>}
         </label>

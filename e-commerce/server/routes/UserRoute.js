@@ -1,10 +1,14 @@
 const router = require("express").Router();
-const userCtrl = require('../controllers/userCtrl');
+const userCtrl = require("../controllers/userCtrl");
 const auth = require('../middleware/auth');
 
 // User registration and login
 router.post('/register', userCtrl.register);
 router.post('/login', userCtrl.login);
+
+// Password reset routes
+router.post('/forgot-password', userCtrl.forgotPassword);
+router.post('/reset-password', userCtrl.resetPassword);
 
 // Get user information
 router.get('/infor', auth, userCtrl.getUser);

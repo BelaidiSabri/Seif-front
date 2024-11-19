@@ -115,4 +115,150 @@
     margin-left: 10px;
   }
   
-  
+  /* ////////////////////// */
+
+  /* Layout */
+.product-exchange {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.card-header {
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Alerts */
+.alert {
+  padding: 12px;
+  border-radius: 4px;
+  background: #f3f4f6;
+}
+
+.alert-destructive {
+  background: #fdecea;
+}
+
+.alert-description {
+  font-size: 0.875rem;
+}
+
+/* Products Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.product-card {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 12px;
+  cursor: pointer;
+  transition: border 0.2s;
+}
+
+.product-card.selected {
+  border: 2px solid #007bff;
+}
+
+.product-image {
+  width: 100%;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.product-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.product-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Buttons */
+.button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.button:disabled {
+  background: #ddd;
+  cursor: not-allowed;
+}
+
+.button.outline {
+  border: 1px solid #007bff;
+  color: #007bff;
+  background: transparent;
+}
+
+.button.destructive {
+  background: #e3342f;
+  color: #fff;
+}
+
+.button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Exchange List */
+.exchange-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exchange-item {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.exchange-info {
+  margin-bottom: 12px;
+}
+
+.exchange-title {
+  font-weight: 500;
+}
+
+.exchange-status {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.exchange-actions {
+  display: flex;
+  gap: 8px;
+}

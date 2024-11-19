@@ -58,10 +58,12 @@ function Login({ socket }) {
     try {
       const res = await axios.post("http://localhost:5000/user/login", data);
       const { accesstoken, user } = res.data;
+      
 
       Cookies.set("token", accesstoken);
       localStorage.setItem("userName", user.name);
       localStorage.setItem("userId", user._id);
+      localStorage.setItem("role", user.role);
 
       socket.emit("newUser", {
         userName: user.name,
@@ -93,7 +95,12 @@ function Login({ socket }) {
 
       setShowToast(true);
     } catch (error) {
-      setRegisterError("Registration failed. Please try again.");
+      if (error.response && error.response.data && error.response.data.msg) {
+        setRegisterError(error.response.data.msg);
+      } else {
+        // Generic error handling
+        setRegisterError("Registration failed. Please try again.");
+      }
     }
   };
 
@@ -294,6 +301,7 @@ function Login({ socket }) {
                 style={{ cursor: "pointer" }}
                 />
             </div>
+            <a style={{alignSelf:'end', width:"70%", margin:'auto', fontSize:'.85rem'}} href="/forgot-password">mot de passe oublié ?</a>
             {loginErrors.password && <p className="error">{loginErrors.password.message}</p>}
 
             <button type="submit" className="button">

@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import NavBar from "./component/dash-client/NavBar";
 import Sidebar from "./component/dash-client/SideBar";
 import Login from "./component/dash-client/Login";
@@ -26,6 +31,12 @@ import Cart from "./component/dash-client/Cart";
 import { CartProvider } from "./contexts/CartContext";
 import OfferManagement from "./component/dash-client/MyOffer";
 import AdminPanel from "./component/dash-client/adminPanel";
+import ForgotPassword from "./component/dash-client/ForgotPassword";
+import ResetPassword from "./component/dash-client/ResetPassword";
+import CartPage from "./component/dash-client/CartPage";
+import ProductExchange from "./component/dash-client/ProductExchange";
+
+
 
 const AppContent = ({ socket, token }) => {
   const location = useLocation();
@@ -41,7 +52,6 @@ const AppContent = ({ socket, token }) => {
 
   return (
     <div>
-
       {token ? (
         <>
           <Sidebar />
@@ -53,7 +63,8 @@ const AppContent = ({ socket, token }) => {
               <Route path="/product/:id" element={<ProductDetails />} />
               {/* <Route path="/Offer" element={<Offer />} /> */}
               <Route path="/Offer" element={<OfferManagement />} />
-              <Route path="/Cart" element={<Cart />} />
+              {/* <Route path="/Cart" element={<Cart />} /> */}
+              <Route path="/Cart" element={<CartPage />} />
               <Route path="/Profil" element={<Profil />} />
               <Route path="/Tarif" element={<Tarif />} />
               <Route path="/Payment" element={<Payment />} />
@@ -64,14 +75,21 @@ const AppContent = ({ socket, token }) => {
               <Route path="/Chat" element={<Chat socket={socket} />} />
               <Route path="/Communité" element={<Communité />} />
               <Route path="/Contact" element={<Contact />} />
+              <Route path="/exchange" element={<ProductExchange />} />
             </Routes>
           </div>
         </>
       ) : (
         <Routes>
-          <Route path="/admin" element={<AdminPanel/>}></Route>
+          <Route path="/admin" element={<AdminPanel />}></Route>
           <Route path="/" element={<Homee />} />
-          <Route path="/login" element={<Login socket={socket} />} />
+          <Route path="/login" element={<Login socket={socket} />} />  
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/user/reset-password/:token"
+            element={<ResetPassword />}
+          />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       )}
     </div>

@@ -33,7 +33,9 @@ export const CartProvider = ({ children }) => {
       const existingProduct = prevCart.find((item) => item.id === product.id);
       if (existingProduct) {
         return prevCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       } else {
         setCartItemCount((prevCount) => prevCount + 1);
@@ -48,7 +50,11 @@ export const CartProvider = ({ children }) => {
       if (removedItem) {
         setCartItemCount((prevCount) => prevCount - removedItem.quantity);
       }
-      return prevCart.filter((item) => item.id !== id);
+      const updatedCart = prevCart.filter((item) => item.id !== id);
+
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+      return updatedCart;
     });
   };
 
@@ -58,8 +64,23 @@ export const CartProvider = ({ children }) => {
     localStorage.removeItem("cart");
   };
 
+  const updateQuantity = (id, quantity) => {
+    setCart((prevCart) =>
+      prevCart.map((item) => (item.id === id ? { ...item, quantity } : item))
+    );
+  };
+
   return (
-    <CartContext.Provider value={{ cart, cartItemCount, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        cartItemCount,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        updateQuantity,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

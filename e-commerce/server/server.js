@@ -7,6 +7,9 @@ const Chat = require('./models/Chat.model');
 const UserRoute = require('./routes/UserRoute');
 const ChatRoute = require('./routes/ChatRoute');
 const ProductRoute = require('./routes/ProductRoute');
+const ExchangeRoute = require('./routes/ExchangeRoute');
+const DonationRoute = require('./routes/DonationRoute');
+
 const path = require('path');
 require('./db/cnx'); // Ensure your DB connection is set up here
 
@@ -28,6 +31,9 @@ let users = [];
 app.use("/user", UserRoute);
 app.use("/chat" , ChatRoute);
 app.use('/product', ProductRoute);
+app.use('/', ExchangeRoute);
+app.use('/', DonationRoute);
+
 io.on('connection', (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
 
