@@ -1,4 +1,5 @@
 const Exchange = require("../models/Exchange.model");
+const NotificationModel = require("../models/Notification.model");
 const Product = require("../models/Product.model");
 
 // Propose an exchange
@@ -8,14 +9,16 @@ exports.proposeExchange = async (req, res) => {
   try {
     const requestedProduct = await Product.findById(productRequested);
     const offeredProduct = await Product.findById(productOffered);
+    console.log('req',requestedProduct);
+    console.log("off", offeredProduct);
     
+
     if (!requestedProduct || !offeredProduct) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    // Verify both products are available for exchange
-    if (requestedProduct.status !== 'echange' || offeredProduct.status !== 'echange') {
-      return res.status(400).json({ message: 'One or both products are not available for exchange' });
+    if (requestedProduct.status !== "echange" || offeredProduct.status !== "echange") {
+      return res.status(400).json({ message: "One or both products are not available for exchange" });
     }
 
     const exchange = new Exchange({
@@ -23,15 +26,26 @@ exports.proposeExchange = async (req, res) => {
       productRequested,
       offeredBy: req.user.id,
       requestedTo: requestedProduct.user,
-      status: 'pending'
+      status: "pending",
     });
 
     await exchange.save();
-    res.status(201).json({ message: 'Exchange proposed successfully.', exchange });
+
+    // Notification for the requested product owner
+    const notification = new NotificationModel({
+      user: requestedProduct.user,
+      message: `User ${req.user.name} has proposed an exchange for your product "${requestedProduct.nom}".`,
+    });
+    await notification.save();
+
+    res.status(201).json({ message: "Exchange proposed successfully.", exchange });
   } catch (error) {
-    res.status(500).json({ message: 'Error proposing exchange', error });
+    console.error("Propose Exchange Error:", error);
+    res.status(500).json({ message: "Error proposing exchange", error: error.message || error });
   }
+  
 };
+
 
 // Get all exchange proposals for a user
 exports.getExchanges = async (req, res) => {
@@ -55,87 +69,94 @@ exports.getExchanges = async (req, res) => {
 
 // Accept or reject an exchange
 exports.updateExchangeStatus = async (req, res) => {
-  const { status } = req.body;
+  const { status } = req.body; // 'accepted' or 'rejected'
   const exchangeId = req.params.id;
 
   try {
-    // Start a session for the transaction
     const session = await Exchange.startSession();
     session.startTransaction();
 
     try {
-      // Find and update the exchange
       const exchange = await Exchange.findById(exchangeId)
-        .populate('productOffered')
-        .populate('productRequested');
+        .populate("productOffered")
+        .populate("productRequested");
 
       if (!exchange) {
         await session.abortTransaction();
-        return res.status(404).json({ message: 'Exchange not found' });
+        return res.status(404).json({ message: "Exchange not found" });
       }
 
-      if (exchange.status !== 'pending') {
+      if (exchange.status !== "pending") {
         await session.abortTransaction();
-        return res.status(400).json({ message: 'Exchange is no longer pending' });
+        return res.status(400).json({ message: "Exchange is no longer pending" });
       }
 
-      // If accepting the exchange
-      if (status === 'accepted') {
-        // Update both products' status and ownership
+      if (status === "accepted") {
         await Product.findByIdAndUpdate(
           exchange.productOffered,
-          { 
-            status: 'exchanged',
-            user: exchange.requestedTo
-          },
+          { status: "exchanged", user: exchange.requestedTo },
           { session }
         );
 
         await Product.findByIdAndUpdate(
           exchange.productRequested,
-          { 
-            status: 'exchanged',
-            user: exchange.offeredBy
-          },
+          { status: "exchanged", user: exchange.offeredBy },
           { session }
         );
 
-        // Cancel all other pending exchanges for both products
         await Exchange.updateMany(
           {
             _id: { $ne: exchangeId },
-            status: 'pending',
+            status: "pending",
             $or: [
               { productOffered: exchange.productOffered },
               { productOffered: exchange.productRequested },
               { productRequested: exchange.productOffered },
-              { productRequested: exchange.productRequested }
-            ]
+              { productRequested: exchange.productRequested },
+            ],
           },
-          { status: 'cancelled' },
+          { status: "cancelled" },
           { session }
         );
       }
 
-      // Update the exchange status
       exchange.status = status;
       await exchange.save({ session });
 
-      // Commit the transaction
-      await session.commitTransaction();
-      res.status(200).json({ 
-        message: `Exchange ${status} successfully`,
-        exchange
-      });
+      // Notifications for both participants
+      const notifications = [
+        {
+          user: exchange.offeredBy,
+          message: `Your exchange proposal for "${exchange.productRequested.name}" was ${status}.`,
+        },
+        {
+          user: exchange.requestedTo,
+          message: `You have ${status} the exchange proposal for "${exchange.productRequested.name}".`,
+        },
+      ];
 
+      await Notification.insertMany(notifications, { session });
+
+      await session.commitTransaction();
+      res.status(200).json({ message: `Exchange ${status} successfully`, exchange });
     } catch (error) {
       await session.abortTransaction();
       throw error;
     } finally {
       session.endSession();
     }
-
   } catch (error) {
-    res.status(500).json({ message: 'Error updating exchange status', error });
+    res.status(500).json({ message: "Error updating exchange status", error });
   }
 };
+
+// Delete all exchanges
+exports.deleteAllExchanges = async (req, res) => {
+  try {
+    await Exchange.deleteMany({});
+    res.status(200).json({ message: "All exchanges deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting exchanges", error });
+  }
+};
+

@@ -178,6 +178,22 @@ ProductSchema.pre('remove', async function(next) {
   }
 });
 
+// Middleware to delete related exchanges
+ProductSchema.pre('remove', async function(next) {
+  try {
+    // Delete exchanges where this product is either offered or requested
+    await Exchange.deleteMany({
+      $or: [
+        { productOffered: this._id },
+        { productRequested: this._id }
+      ]
+    });
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 const Product = mongoose.model("Product", ProductSchema);
 
 // Add text index for search functionality

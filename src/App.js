@@ -35,6 +35,7 @@ import ForgotPassword from "./component/dash-client/ForgotPassword";
 import ResetPassword from "./component/dash-client/ResetPassword";
 import CartPage from "./component/dash-client/CartPage";
 import ProductExchange from "./component/dash-client/ProductExchange";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 
 
@@ -55,7 +56,9 @@ const AppContent = ({ socket, token }) => {
       {token ? (
         <>
           <Sidebar />
+          <NotificationProvider>
           <NavBar />
+          </NotificationProvider>
           <div id="content" style={contentStyle}>
             <Routes>
               <Route path="/Livre" element={<Livre />} />

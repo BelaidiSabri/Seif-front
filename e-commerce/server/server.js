@@ -9,6 +9,7 @@ const ChatRoute = require('./routes/ChatRoute');
 const ProductRoute = require('./routes/ProductRoute');
 const ExchangeRoute = require('./routes/ExchangeRoute');
 const DonationRoute = require('./routes/DonationRoute');
+const NotificationRoute = require('./routes/NotificationRoute');
 
 const path = require('path');
 require('./db/cnx'); // Ensure your DB connection is set up here
@@ -33,6 +34,9 @@ app.use("/chat" , ChatRoute);
 app.use('/product', ProductRoute);
 app.use('/', ExchangeRoute);
 app.use('/', DonationRoute);
+app.use('/notifications', NotificationRoute);
+
+
 
 io.on('connection', (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);

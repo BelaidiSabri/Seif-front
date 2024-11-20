@@ -12,4 +12,7 @@ router.get('/exchange', auth, exchangeController.getExchanges);
 // Update exchange status (accept/reject)
 router.patch('/exchange/:id', auth, exchangeController.updateExchangeStatus);
 
+router.delete('/exchange', exchangeController.deleteAllExchanges);
+
+
 module.exports = router;

@@ -1,0 +1,38 @@
+.notification-dropdown {
+    padding: 10px;
+  }
+  
+  .notification-dropdown h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+  }
+  
+  .notification-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .notification-dropdown li {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .notification-dropdown li.unread {
+    background-color: #f9f9f9;
+    font-weight: bold;
+  }
+  
+  .notification-dropdown li.read {
+    background-color: #fff;
+  }
+  
+  .notification-time {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 5px;
+  }
+  
