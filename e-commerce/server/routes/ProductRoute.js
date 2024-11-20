@@ -9,7 +9,9 @@ const upload = require('../middleware/upload');
  */
 
 // Get all products with filtering and pagination
-router.get('/products', productCtrl.getAllProducts);
+router.get('/products',auth, productCtrl.getAllProducts);
+
+router.get('/max-price', productCtrl.getMaxPrice);
 
 // Get single product details
 router.get('/product/:id', productCtrl.getProduct);

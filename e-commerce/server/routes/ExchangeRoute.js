@@ -14,5 +14,7 @@ router.patch('/exchange/:id', auth, exchangeController.updateExchangeStatus);
 
 router.delete('/exchange', exchangeController.deleteAllExchanges);
 
+router.post('/exchange/:id/cancel', auth, exchangeController.cancelExchange);
+
 
 module.exports = router;

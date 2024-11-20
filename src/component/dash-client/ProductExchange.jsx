@@ -1,49 +1,38 @@
+// Importation des bibliothèques nécessaires
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../../CSS/ProductExchange.css';
 import Cookies from "js-cookie";
 
 const ProductExchange = ({ currentProduct }) => {
+  // États pour gérer les données et le statut de l'interface utilisateur
   const [userProducts, setUserProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [exchanges, setExchanges] = useState([]);
+  const [filteredExchanges, setFilteredExchanges] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [filter, setFilter] = useState('all');
 
   const baseURL = "http://localhost:5000";
   const token = Cookies.get("token");
 
+  // Chargement initial des données
   useEffect(() => {
     fetchUserProducts();
     fetchExchanges();
   }, []);
 
+  useEffect(() => {
+    filterExchanges(filter);
+  }, [exchanges, filter]);
 
-  const deleteAll = async () => {
-    try {
-      const response = await axios.delete(`${baseURL}/exchange`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      alert(response.data.message || "All exchanges deleted successfully.");
-      // Optionally, refresh exchanges or user products after deletion
-      fetchExchanges();
-      fetchUserProducts();
-    } catch (err) {
-      console.error("Error deleting all exchanges:", err);
-      alert("Failed to delete all exchanges. Please try again.");
-    }
-  };
-  
-
+  // Récupération des produits de l'utilisateur
   const fetchUserProducts = async () => {
     try {
       const userId = localStorage.getItem('userId');
       if (!userId) {
-        setError('No user ID found');
+        setError('Aucun ID utilisateur trouvé');
         return;
       }
       const response = await axios.get(`${baseURL}/product/user/products`, {
@@ -55,10 +44,11 @@ const ProductExchange = ({ currentProduct }) => {
       });
       setUserProducts(response.data.products.filter(product => product.status === 'echange'));
     } catch (err) {
-      setError('Failed to fetch your products');
+      setError('Échec lors de la récupération de vos produits');
     }
   };
 
+  // Récupération des demandes d'échange
   const fetchExchanges = async () => {
     try {
       const response = await axios.get(`${baseURL}/exchange`, {
@@ -67,44 +57,66 @@ const ProductExchange = ({ currentProduct }) => {
           "Content-Type": "application/json",
         },
       });
-      // Filter out rejected exchanges before setting state
-      const filteredExchanges = response.data.exchanges.filter(exchange => 
-        exchange.status !== 'rejected'
-      );
-      setExchanges(filteredExchanges);
+      setExchanges(response.data.exchanges);
     } catch (err) {
-      setError('Failed to fetch exchange requests');
+      setError('Échec lors de la récupération des demandes d’échange');
     }
   };
 
-  const handleExchangeResponse = async (exchangeId, status) => {
+  // Gestion des actions sur les échanges
+  const handleExchangeAction = async (exchangeId, action) => {
     setLoading(true);
     try {
-      await axios.patch(`${baseURL}/exchange/${exchangeId}`, 
-        { status },
-        {
+      let response;
+      if (action === 'cancel') {
+        response = await axios.post(`${baseURL}/exchange/${exchangeId}/cancel`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
-      );
+        });
+      } else {
+        response = await axios.patch(`${baseURL}/exchange/${exchangeId}`, 
+          { status: action === 'accept' ? 'accepted' : 'rejected' },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
       
-      await Promise.all([fetchExchanges(), fetchUserProducts()]);
-      setSuccessMessage(`Exchange ${status === 'accepted' ? 'accepted' : 'rejected'} successfully!`);
+      await fetchExchanges();
+      setSuccessMessage(
+        action === 'accept' ? 'Échange accepté avec succès !' :
+        action === 'cancel' ? 'Échange annulé avec succès !' :
+        'Échange refusé avec succès !'
+      );
       
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || `Failed to ${status} exchange`);
+      setError(err.response?.data?.message || `Échec lors de ${action} l'échange`);
     } finally {
       setLoading(false);
     }
   };
 
+  // Filtrage des échanges
+  const filterExchanges = (status) => {
+    if (status === 'all') {
+      setFilteredExchanges(exchanges);
+    } else {
+      setFilteredExchanges(exchanges.filter(exchange => exchange.status === status));
+    }
+  };
+
+  // Rendu des badges de statut
   const renderStatusBadge = (status) => {
     const statusClasses = {
       accepted: 'status-badge accepted',
       cancelled: 'status-badge cancelled',
+      rejected: 'status-badge rejected',
       pending: 'status-badge pending'
     };
     
@@ -113,11 +125,47 @@ const ProductExchange = ({ currentProduct }) => {
     </span>;
   };
 
+  // Rendu des actions disponibles pour chaque échange
+  const renderExchangeActions = (exchange) => {
+    if (exchange.status !== 'pending') return null;
+
+    if (exchange.userRole === 'recipient') {
+      return (
+        <div className="exchange-actions">
+          <button
+            className="btn accept-btn"
+            onClick={() => handleExchangeAction(exchange._id, 'accept')}
+            disabled={loading}
+          >
+            Accepter l'échange
+          </button>
+          <button
+            className="btn reject-btn"
+            onClick={() => handleExchangeAction(exchange._id, 'reject')}
+            disabled={loading}
+          >
+            Refuser l'échange
+          </button>
+        </div>
+      );
+    } else if (exchange.userRole === 'requester') {
+      return (
+        <div className="exchange-actions">
+          <button
+            className="btn cancel-btn"
+            onClick={() => handleExchangeAction(exchange._id, 'cancel')}
+            disabled={loading}
+          >
+            Annuler la demande
+          </button>
+        </div>
+      );
+    }
+  };
+
+  // Rendu principal du composant
   return (
     <div className="product-exchange-container">
-        <button onClick={deleteAll}>
-            delete all 
-        </button>
       {error && (
         <div className="alert alert-error">
           <span>{error}</span>
@@ -132,26 +180,51 @@ const ProductExchange = ({ currentProduct }) => {
         </div>
       )}
 
+      <div className="filter-controls">
+        <button className={`filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>
+          Tous
+        </button>
+        <button className={`filter-btn ${filter === 'pending' ? 'active' : ''}`} onClick={() => setFilter('pending')}>
+          En attente
+        </button>
+        <button className={`filter-btn ${filter === 'accepted' ? 'active' : ''}`} onClick={() => setFilter('accepted')}>
+          Acceptés
+        </button>
+        <button className={`filter-btn ${filter === 'rejected' ? 'active' : ''}`} onClick={() => setFilter('rejected')}>
+          Refusés
+        </button>
+      </div>
+
       <div className="card">
         <div className="card-header">
-          <h2>Exchange Requests</h2>
+          <h2>Demandes d'échange</h2>
         </div>
         
         <div className="card-content">
-          {exchanges.length === 0 ? (
+          {filteredExchanges.length === 0 ? (
             <div className="empty-state">
-              <p>No exchange requests found</p>
-              <p className="empty-state-subtitle">Your exchange requests will appear here</p>
+              <p>Aucune demande d’échange trouvée</p>
+              <p className="empty-state-subtitle">Vos demandes d’échange apparaîtront ici</p>
             </div>
           ) : (
             <div className="exchange-list">
-              {exchanges.map(exchange => (
+              {filteredExchanges.map(exchange => (
                 <div key={exchange._id} className="exchange-item">
                   <div className="exchange-header">
                     <div className="user-info">
                       <div className="exchange-description">
-                        <span className="user-name">{exchange.offeredBy.email}</span>
-                        <span className="exchange-text">wants to exchange their product with yours</span>
+                        <span className="user-name">
+                          {exchange.userRole === 'recipient' ? 
+                            exchange.offeredBy.email : 
+                            'Vous'} 
+                        </span>
+                        <span className="exchange-text">
+                          {exchange.userRole === 'recipient' ? 
+                            'souhaite échanger son produit contre le vôtre' : 
+                            'a demandé un échange avec'}
+                        </span>
+                        {exchange.userRole === 'requester' && 
+                          <span className="user-name">{exchange.requestedTo.email}</span>}
                       </div>
                     </div>
                     {renderStatusBadge(exchange.status)}
@@ -159,46 +232,33 @@ const ProductExchange = ({ currentProduct }) => {
 
                   <div className="exchange-products">
                     <div className="product-card">
-                      <div className="product-label">Their Product</div>
-                     {/*  <img 
+                      <div className="product-label">
+                        {exchange.userRole === 'recipient' ? 'Son produit' : 'Votre produit'}
+                      </div>
+                      <img 
                         src={`${baseURL}${exchange.productOffered.images[0]}`}
                         alt={exchange.productOffered.nom}
                         className="exchange-product-image"
-                      /> */}
-                      {/* <h4>{exchange.productOffered.nom}</h4> */}
+                      />
+                      <h4>{exchange.productOffered.nom}</h4>
                     </div>
 
                     <div className="exchange-arrow">↔</div>
 
                     <div className="product-card">
-                      <div className="product-label">Your Product</div>
-                     {/*  <img 
+                      <div className="product-label">
+                        {exchange.userRole === 'recipient' ? 'Votre produit' : 'Son produit'}
+                      </div>
+                      <img 
                         src={`${baseURL}${exchange.productRequested.images[0]}`}
                         alt={exchange.productRequested.nom}
                         className="exchange-product-image"
                       />
-                      <h4>{exchange.productRequested.nom}</h4> */}
+                      <h4>{exchange.productRequested.nom}</h4>
                     </div>
                   </div>
 
-                  {exchange.status === 'pending' && (
-                    <div className="exchange-actions">
-                      <button
-                        className="btn accept-btn"
-                        onClick={() => handleExchangeResponse(exchange._id, 'accepted')}
-                        disabled={loading}
-                      >
-                        Accept Exchange
-                      </button>
-                      <button
-                        className="btn reject-btn"
-                        onClick={() => handleExchangeResponse(exchange._id, 'rejected')}
-                        disabled={loading}
-                      >
-                        Decline Exchange
-                      </button>
-                    </div>
-                  )}
+                  {renderExchangeActions(exchange)}
                 </div>
               ))}
             </div>

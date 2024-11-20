@@ -1,6 +1,7 @@
+const Exchange = require('../models/Exchange.model');
 const Product = require('../models/Product.model');
 const User = require('../models/User.model');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 
 const productCtrl = {
@@ -92,7 +93,144 @@ const productCtrl = {
     }
   },
 
-  getAllProducts : async (req, res) => {
+  getAllProducts: async (req, res) => {
+    try {
+      const {
+        page = 1,
+        limit = 12,
+        category,
+        ville,
+        minPrice,
+        maxPrice,
+        search,
+        status,
+        userProducts,
+        sortBy = 'createdAt',
+        sortOrder = 'desc'
+      } = req.query;
+  
+      // Build query filter
+      const filter = {
+        // Exclude 'exchanged' products by default
+        status: { $ne: 'exchanged' }
+      };
+  
+      // Category filter
+      if (category) filter.categorie = category;
+  
+      // City filter
+      if (ville) filter.ville = ville;
+  
+      // Status filter
+      if (status) {
+        switch(status) {
+          case 'exchanged':
+            filter.status = 'exchanged';
+            break;
+          case 'vente':
+            filter.status = 'vente';
+            break;
+          case 'don':
+            filter.status = 'don';
+            break;
+          default:
+            filter.status = status;
+        }
+      }
+  
+      // Price range filter
+if (minPrice || maxPrice) {
+  filter.$or = [
+    // Price within specified range
+    {
+      prix: {
+        ...(minPrice && { $gte: Number(minPrice) }),
+        ...(maxPrice && { $lte: Number(maxPrice) })
+      }
+    },
+    // Include products with no price (exchange or donation)
+    ...(minPrice === '0' ? [
+      { prix: { $exists: false } },
+      { prix: null },
+      { status: { $in: ['echange', 'don'] } }
+    ] : [])
+  ];
+}
+  
+      // User products filter
+      if (userProducts !== undefined && req.user) {
+        if (userProducts === 'false') {
+          // Exclude user's own products
+          filter.user = { $ne: req.user.id };
+        }
+        // If userProducts is not 'false', it will show all products (including user's)
+      }
+  
+      // Search filter with advanced matching
+      if (search) {
+        filter.$or = [
+          { nom: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+          { categorie: { $regex: search, $options: 'i' } }
+        ];
+  
+        // Combine search with other filters if category is specified
+        if (category) {
+          filter.$and = [
+            { $or: [
+              { nom: { $regex: search, $options: 'i' } },
+              { description: { $regex: search, $options: 'i' } },
+              { categorie: { $regex: search, $options: 'i' } }
+            ]},
+            { categorie: category }
+          ];
+        }
+      }
+  
+      // Sorting options
+      const sort = {};
+      sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+  
+      // Execute query with pagination and population
+      const products = await Product.find(filter)
+        .populate('user', 'username email')
+        .limit(Number(limit))
+        .skip((page - 1) * Number(limit))
+        .sort(sort);
+  
+      // Get total documents count
+      const totalProducts = await Product.countDocuments(filter);
+  
+      res.json({
+        products,
+        totalPages: Math.ceil(totalProducts / limit),
+        currentPage: Number(page),
+        totalProducts,
+        pageSize: Number(limit)
+      });
+    } catch (error) {
+      return res.status(500).json({ 
+        msg: 'Error fetching products', 
+        error: error.message 
+      });
+    }
+  },
+
+  getMaxPrice: async (req, res) => {
+    try {
+        const maxPrice = await Product.find().sort({ prix: -1 }).limit(1).select('prix');
+        res.json({ maxPrice: maxPrice[0]?.prix || 0 });
+    } catch (error) {
+        return res.status(500).json({
+            msg: 'Error fetching maximum price',
+            error: error.message,
+        });
+    }
+},
+
+
+
+ /*  getAllProducts : async (req, res) => {
     try {
       const {
         page = 1,
@@ -157,7 +295,7 @@ const productCtrl = {
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
-  },
+  }, */
 
   updateProduct: async (req, res) => {
     try {
@@ -231,44 +369,78 @@ const productCtrl = {
     }
   },
 
-  deleteProduct: async (req, res) => {
-    
+  deleteProduct : async (req, res) => {
     try {
-      const product = await Product.findById(req.params.id);
+      // Start a session for transaction
+      const session = await Product.startSession();
+      session.startTransaction();
   
-      if (!product) {
-        return res.status(404).json({ msg: "Product not found" });
-      }
+      try {
+        const product = await Product.findById(req.params.id);
   
-      // Verify product ownership
-      if (!req.user || product.user.toString() !== req.user.id) {
-        return res.status(403).json({ msg: "Not authorized to delete this product" });
-      }
+        if (!product) {
+          await session.abortTransaction();
+          return res.status(404).json({ msg: "Product not found" });
+        }
   
-      // Delete associated images from filesystem
-      if (Array.isArray(product.images) && product.images.length > 0) {
-        product.images.forEach(imagePath => {
-          const fullPath = path.join(__dirname, '..', imagePath);
-          fs.unlink(fullPath, err => {
-            if (err) console.error('Error deleting image:', err);
-          });
+        // Verify product ownership
+        if (!req.user || product.user.toString() !== req.user.id) {
+          await session.abortTransaction();
+          return res.status(403).json({ msg: "Not authorized to delete this product" });
+        }
+  
+        // Delete associated images from filesystem
+        if (Array.isArray(product.images) && product.images.length > 0) {
+          await Promise.all(product.images.map(async (imagePath) => {
+            try {
+              const fullPath = path.join(__dirname, '..', imagePath);
+              await fs.unlink(fullPath);
+            } catch (err) {
+              console.error(`Error deleting image ${imagePath}:`, err);
+              // Continue with deletion even if image removal fails
+            }
+          }));
+        }
+  
+        // Delete related exchanges
+        const deletedExchanges = await Exchange.deleteMany({
+          $or: [
+            { productOffered: product._id },
+            { productRequested: product._id }
+          ]
+        }).session(session);
+  
+        // Remove product from user's products array
+        await User.findByIdAndUpdate(req.user.id, {
+          $pull: { products: req.params.id }
+        }).session(session);
+  
+        // Delete the product
+        await Product.deleteOne({ _id: product._id }).session(session);
+  
+        // Commit the transaction
+        await session.commitTransaction();
+  
+        res.json({ 
+          msg: "Product deleted successfully",
+          deletedExchanges: deletedExchanges.deletedCount
         });
+  
+      } catch (error) {
+        // If any error occurs, abort the transaction
+        await session.abortTransaction();
+        throw error; // Re-throw to be caught by outer try-catch
+      } finally {
+        // End the session
+        session.endSession();
       }
   
-      // Remove product from user's products array
-      await User.findByIdAndUpdate(req.user.id, {
-        $pull: { products: req.params.id }
-      });
-  
-      // Delete the product
-      await Product.findByIdAndDelete(req.params.id);
-  
-      res.json({ msg: "Product deleted successfully" });
     } catch (error) {
       console.error('Error in deleteProduct:', error);
       return res.status(500).json({ msg: error.message });
     }
   },
+
 
   getUserProducts: async (req, res) => {
     try {

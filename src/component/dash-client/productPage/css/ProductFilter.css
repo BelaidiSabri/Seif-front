@@ -1,0 +1,22 @@
+.product-filter-container{
+    margin-top: 3rem;
+}
+.filter-inputs-range{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.filter-inputs{
+    display: flex;
+    gap: 1rem;
+    position: relative;
+}
+.filter-inputs label{
+    position: absolute;
+    bottom: 23px;
+}
+.filter-price-slider{
+    position: absolute;
+    width: 220px;
+    top:50px
+}

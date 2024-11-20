@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import ProductCard from "./ProductCard";
+import ProductFilters from "./ProductFilters";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../../CSS/ProductsPage.css";
-import LocationSearcher from "./LocationSearcher";
+import "./css/ProductPage.css";
+import LocationSearcher from "../LocationSearcher";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
-import 'rc-slider/assets/index.css';
 import { debounce } from "lodash";
-import categories from "../../data/categories"
-
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -17,7 +15,7 @@ const ProductsPage = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [userLocation, setUserLocation] = useState(null);
   const [showMap, setShowMap] = useState(false);
-  const [maxDistance, setMaxDistance] = useState(50); // Default 50km radius
+  const [maxDistance, setMaxDistance] = useState(50);
   const [sortedProducts, setSortedProducts] = useState([]);
   const [filters, setFilters] = useState({
     status: "",
@@ -26,37 +24,20 @@ const ProductsPage = () => {
     minPrice: "",
     maxPrice: "",
     search: "",
-    userProducts: false, 
-    status: ''
+    userProducts: false
   });
   const [selectedCategory, setSelectedCategory] = useState("");
   const [maxProductPrice, setMaxProductPrice] = useState(0);
-  const [priceRange, setPriceRange] = useState([0, 0]);
 
-    // Debounced fetch function
-    const debouncedFetchProducts = useCallback(
-      debounce(() => {
-        fetchProducts();
-      }, 500), 
-      []
-    );
-  
-  useEffect(() => {
-    const fetchMaxPrice = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/product/max-price");
-        const maxPrice = response.data.maxPrice || 0;
-        setMaxProductPrice(maxPrice+1);
-        setPriceRange([0, maxPrice]); // Initialize range slider values
-      } catch (error) {
-        console.error("Erreur lors de la récupération du prix maximum :", error);
-      }
-    };
-    fetchMaxPrice();
-  }, []);
-  
-  
   const token = Cookies.get("token");
+
+  // Debounced fetch function
+  const debouncedFetchProducts = useCallback(
+    debounce(() => {
+      fetchProducts();
+    }, 500),
+    []
+  );
 
   // Calculate distance between two points using Haversine formula
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -74,6 +55,19 @@ const ProductsPage = () => {
   };
 
   useEffect(() => {
+    const fetchMaxPrice = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/product/max-price");
+        const maxPrice = response.data.maxPrice || 0;
+        setMaxProductPrice(maxPrice + 1);
+      } catch (error) {
+        console.error("Erreur lors de la récupération du prix maximum :", error);
+      }
+    };
+    fetchMaxPrice();
+  }, []);
+
+  useEffect(() => {
     fetchProducts();
   }, [filters, currentPage, selectedCategory]);
 
@@ -87,13 +81,12 @@ const ProductsPage = () => {
         const distance = calculateDistance(
           userLocation.lat,
           userLocation.lng,
-          product.coordinates[1], // Latitude is second element
-          product.coordinates[0] // Longitude is first element
+          product.coordinates[1],
+          product.coordinates[0]
         );
         return { ...product, distance };
       });
 
-      // Filter by max distance and sort by distance
       const filtered = productsWithDistance
         .filter((product) => product.distance <= maxDistance)
         .sort((a, b) => a.distance - b.distance);
@@ -111,29 +104,29 @@ const ProductsPage = () => {
         limit: 12,
         category: selectedCategory,
       };
-  
+
       // Add filters conditionally
       if (filters.search) params.search = filters.search;
       if (filters.status) params.status = filters.status;
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
-  
+
       // Explicitly handle userProducts
       if (filters.userProducts !== undefined) {
         params.userProducts = filters.userProducts.toString();
       }
-  
+
       const response = await axios.get(
         "http://localhost:5000/product/products",
         {
-          params,  
+          params,
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
       );
-      
+
       setProducts(response.data.products);
       setTotalPages(response.data.totalPages);
     } catch (error) {
@@ -157,24 +150,6 @@ const ProductsPage = () => {
     setSelectedCategory(category);
     setCurrentPage(1);
   };
-
-  const handlePriceRangeChange = (newRange) => {
-    setPriceRange(newRange);
-    
-    // Update filters directly when price range changes
-    setFilters(prev => ({
-      ...prev,
-      minPrice: newRange[0].toString(),
-      maxPrice: newRange[1].toString()
-    }));
-    
-    debouncedFetchProducts();
-
-    // Reset to first page when filter changes
-    setCurrentPage(1);
-  };
-
-
 
   return (
     <div className="container my-4">
@@ -219,141 +194,15 @@ const ProductsPage = () => {
         )}
       </div>
 
-      {/* Filters section */}
-      <div className="product-filters mb-4 d-flex justify-content-between align-items-center">
-        {/* Search Input and Category Filter */}
-        <div className="d-flex align-items-center">
-          <input
-            type="text"
-            className="form-control me-2"
-            placeholder="Rechercher..."
-            onChange={(e) => handleFilterChange("search", e.target.value)}
-          />
-
-          <select
-            className="form-select me-2"
-            value={selectedCategory}
-            onChange={(e) => handleCategoryChange(e.target.value)}
-          >
-            <option value="">Toutes les catégories</option>
-            {categories.map((category, index) => (
-              <React.Fragment key={index}>
-                <option disabled className="font-weight-bold text-muted">
-                  {category.name}
-                </option>
-                {category.subcategories.map((sub) => (
-                  <option key={sub} value={sub} className="pl-3">
-                    {sub}
-                  </option>
-                ))}
-              </React.Fragment>
-            ))}
-          </select>
-        </div>
-
-        {/* Status and Price Filters */}
-        <div className="d-flex align-items-center">
-          <select
-            className="form-select me-2"
-            onChange={(e) => handleFilterChange("status", e.target.value)}
-          >
-            <option value="">Tous les statuts</option>
-            <option value="vente">Vente</option>
-            <option value="echange">Echange</option>
-            <option value="don">Don</option>
-          </select>
-<div className="d-flex align-items-center">
-    <div className="range-container">
-        <label>Prix: {priceRange[0]} - {priceRange[1]}</label>
-        <div style={{
-  display: 'flex', 
-  gap: '10px', 
-  alignItems: 'center',
-  padding: '10px',
-  border: '1px solid #ddd'
-}}>
-  <div>
-    <label>Min Price</label>
-    <input
-      type="number"
-      value={filters.minPrice}
-      onChange={(e) => {
-        const value = e.target.value;
-        setFilters(prev => ({
-          ...prev,
-          minPrice: value
-        }));
-        setCurrentPage(1);
-      }}
-      style={{
-        border: '1px solid #ccc',
-        padding: '5px',
-        width: '100px'
-      }}
-      min="0"
-    />
-  </div>
-  <div>
-    <label>Max Price</label>
-    <input
-      type="number"
-      value={filters.maxPrice}
-      onChange={(e) => {
-        const value = e.target.value;
-        setFilters(prev => ({
-          ...prev,
-          maxPrice: value
-        }));
-        setCurrentPage(1);
-      }}
-      style={{
-        border: '1px solid #ccc',
-        padding: '5px',
-        width: '100px'
-      }}
-      min="0"
-    />
-  </div>
-  <input
-    type="range"
-    min="0"
-    max={maxProductPrice}
-    value={filters.maxPrice || 0}
-    onChange={(e) => {
-      const value = e.target.value;
-      setFilters(prev => ({
-        ...prev,
-        maxPrice: value
-      }));
-      setCurrentPage(1);
-    }}
-    style={{
-      width: '200px'
-    }}
-  />
-</div>
-    </div>
-</div>
-
-          <div className="form-check me-2">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="userProductsFilter"
-              checked={filters.userProducts}
-              onChange={(e) => 
-                handleFilterChange("userProducts", e.target.checked)
-              }
-            />
-            <label 
-              className="form-check-label" 
-              htmlFor="userProductsFilter"
-            >
-              Afficher mes produits
-            </label>
-          </div>
-        </div>
-      </div>
+      {/* Product Filters */}
+      <ProductFilters
+        filters={filters}
+        setFilters={setFilters}
+        selectedCategory={selectedCategory}
+        handleCategoryChange={handleCategoryChange}
+        handleFilterChange={handleFilterChange}
+        maxProductPrice={maxProductPrice}
+      />
 
       {/* Products Grid */}
       <div className="row">

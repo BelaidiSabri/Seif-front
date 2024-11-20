@@ -27,8 +27,11 @@ const NavBar = () => {
             {cartItemCount > 0 && <span className="cart-count">{cartItemCount}</span>}
           </Link>
           <div className="notification-wrapper">
-            <FaBell className="navbar-icon" onClick={toggleDropdown} />
-            {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+            <div className="navbar-icon">
+
+            <FaBell  onClick={toggleDropdown} />
+            {unreadCount > 0 && <span className="cart-count">{unreadCount}</span>}
+            </div>
             {showDropdown && (
               <NotificationDropdown
                 notifications={notifications}

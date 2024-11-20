@@ -1,4 +1,8 @@
-const mongoose = require("mongoose");
+
+// Product.js
+const mongoose = require('mongoose');
+const Exchange = require('./Exchange.model');
+// const Exchange = require('./Exchange'); // Adjust path as needed
 
 const ProductSchema = new mongoose.Schema({
   nom: { 
@@ -49,7 +53,6 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function(v) {
-        // Validate image path
         return /^\/uploads\/products\/.+\.(jpg|jpeg|png|gif)$/i.test(v);
       },
       message: props => `${props.value} is not a valid image path!`
@@ -59,7 +62,7 @@ const ProductSchema = new mongoose.Schema({
   status: { 
     type: String,
     enum: {
-      values: ['vente', 'don', 'echange', 'unavailable'],
+      values: ['vente', 'don', 'echange', 'unavailable','exchanged'],
       message: '{VALUE} is not a valid status'
     },
     default: 'vente'
@@ -79,19 +82,19 @@ const ProductSchema = new mongoose.Schema({
   },
   
   coordinates: {
-    type: [Number], // [longitude, latitude]
+    type: [Number],
     index: '2dsphere',
     required: [true, '"location" is required'],
     validate: {
       validator: function(v) {
         return v.length === 2 && 
-               v[0] >= -180 && v[0] <= 180 && // longitude
-               v[1] >= -90 && v[1] <= 90;     // latitude
+               v[0] >= -180 && v[0] <= 180 && 
+               v[1] >= -90 && v[1] <= 90;
       },
       message: props => `${props.value} is not a valid coordinate pair!`
     }
   },
-  //badel user b seller when you make 2 roles
+
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -108,7 +111,7 @@ const ProductSchema = new mongoose.Schema({
     default: Date.now
   }
 }, {
-  timestamps: true, // Adds createdAt and updatedAt fields
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
@@ -158,36 +161,36 @@ ProductSchema.pre('save', function(next) {
   next();
 });
 
-// Middleware to handle image deletion when product is deleted
+// Middleware to handle cascade deletion
 ProductSchema.pre('remove', async function(next) {
   try {
+    // Handle image deletion
     if (this.images && this.images.length > 0) {
-      const fs = require('fs');
+      const fs = require('fs').promises;
       const path = require('path');
       
-      this.images.forEach(imagePath => {
-        const fullPath = path.join(__dirname, '..', imagePath);
-        fs.unlink(fullPath, err => {
-          if (err) console.error('Error deleting image:', err);
-        });
-      });
+      await Promise.all(this.images.map(async (imagePath) => {
+        try {
+          const fullPath = path.join(__dirname, '..', imagePath);
+          await fs.unlink(fullPath);
+        } catch (err) {
+          console.error(`Error deleting image ${imagePath}:`, err);
+        }
+      }));
     }
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
 
-// Middleware to delete related exchanges
-ProductSchema.pre('remove', async function(next) {
-  try {
-    // Delete exchanges where this product is either offered or requested
-    await Exchange.deleteMany({
+    // Handle exchange deletion
+    const deletedExchanges = await Exchange.deleteMany({
       $or: [
         { productOffered: this._id },
         { productRequested: this._id }
       ]
     });
+    
+    if (deletedExchanges.deletedCount > 0) {
+      console.log(`Deleted ${deletedExchanges.deletedCount} related exchanges for product ${this._id}`);
+    }
+
     next();
   } catch (error) {
     next(error);

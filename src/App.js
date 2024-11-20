@@ -25,7 +25,7 @@ import Cookies from "js-cookie";
 import socketIO from "socket.io-client";
 import "./App.css";
 import Payment from "./component/dash-client/Payment";
-import ProductsPage from "./component/dash-client/ProductPage";
+// import ProductsPage from "./component/dash-client/ProductPage";
 import ProductDetails from "./component/dash-client/ProductDetails";
 import Cart from "./component/dash-client/Cart";
 import { CartProvider } from "./contexts/CartContext";
@@ -36,6 +36,7 @@ import ResetPassword from "./component/dash-client/ResetPassword";
 import CartPage from "./component/dash-client/CartPage";
 import ProductExchange from "./component/dash-client/ProductExchange";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import ProductsPage from "./component/dash-client/productPage/ProductPage";
 
 
 
@@ -62,6 +63,7 @@ const AppContent = ({ socket, token }) => {
           <div id="content" style={contentStyle}>
             <Routes>
               <Route path="/Livre" element={<Livre />} />
+              {/* <Route path="/Products" element={<ProductsPage />} /> */}
               <Route path="/Products" element={<ProductsPage />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               {/* <Route path="/Offer" element={<Offer />} /> */}

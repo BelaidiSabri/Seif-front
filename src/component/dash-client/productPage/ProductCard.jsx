@@ -1,7 +1,7 @@
-import "../../CSS/ProductCard.css";
+import "./css/ProductCard.css"
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import notAvailableImg from "../../assets/Product-inside.png";
+import notAvailableImg from "../../../assets/Product-inside.png";
 // import notAvailableImg from "../../assets/product-placeholder.png";
 
 const ProductComponent = ({ product }) => {

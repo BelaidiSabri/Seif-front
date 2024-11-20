@@ -4651,7 +4651,7 @@ html {
     border-radius: 5px;
     padding: 10px;
     width: 100px;
-    margin-bottom: 15px;
+    /* margin-bottom: 15px; */
   }
   
   .single-product-form a.cart-btn {
