@@ -291,6 +291,16 @@ const userCtrl = {
       res.status(500).json({ msg: error.message });
     }
   },
+    // Method to delete all users
+    deleteAllUsers: async (req, res) => {
+      try {
+        // Deleting all users from the database
+        await users.deleteMany({});
+        res.json({ msg: "All users have been deleted." });
+      } catch (error) {
+        return res.status(500).json({ message: error.message });
+      }
+    },
 
   resetPassword: async (req, res) => {
     try {

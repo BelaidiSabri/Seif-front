@@ -7,8 +7,6 @@ const Cart = () => {
     useCart();
   const [showCheckout, setShowCheckout] = useState(false);
 
-
-
   const calculateTotal = () => {
     return cart.reduce((total, item) => {
       const prix =
@@ -74,19 +72,29 @@ const Cart = () => {
                     value={item.quantity}
                     readOnly
                     className="cart-list-quantity-input"
+                    max={item.quantityDispo}
                   />
                   <div className="cart-list-quantity-controls">
                     <button
                       className="cart-list-quantity-btn cart-list-quantity-increase"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => {
+                        if (item.quantity < item.quantityDispo) {
+                          updateQuantity(item.id, item.quantity + 1);
+                        }
+                      }}
                     >
                       +
                     </button>
                     <button
                       className="cart-list-quantity-btn cart-list-quantity-decrease"
-                      onClick={() =>
-                        updateQuantity(item.id, Math.max(item.quantity - 1, 1))
-                      }
+                      onClick={() => {
+                        if (item.quantity > 1) {
+                          updateQuantity(
+                            item.id,
+                            Math.max(item.quantity - 1, 1)
+                          );
+                        }
+                      }}
                     >
                       -
                     </button>
@@ -112,26 +120,20 @@ const Cart = () => {
           ))}
         </tbody>
       </table>
+      <button
+        className="cart-list-btn cart-list-clear-cart"
+        onClick={clearCart}
+      >
+        Vider le Panier
+      </button>
+    </div>
+  );
+};
 
-    {/*   <div className="cart-list-summary">
-        <h4>Total: {calculateTotal().toFixed(2)} Dt</h4>
-        <div className="cart-list-actions">
-          <button
-            className="cart-list-btn cart-list-buy-now"
-            onClick={openCheckout}
-          >
-            Acheter
-          </button>
-        </div>
-      </div> */}
-          <button
-            className="cart-list-btn cart-list-clear-cart"
-            onClick={clearCart}
-          >
-            Vider le Panier
-          </button>
+export default Cart;
 
-{/*       {showCheckout && (
+{
+  /*       {showCheckout && (
         <div className="cart-list-checkout-modal">
           <div className="cart-list-checkout-modal-content">
             <h3>Paiement par Stripe</h3>
@@ -152,9 +154,5 @@ const Cart = () => {
             </button>
           </div>
         </div>
-      )} */}
-    </div>
-  );
-};
-
-export default Cart;
+      )} */
+}

@@ -35,6 +35,7 @@ app.use('/product', ProductRoute);
 app.use('/', ExchangeRoute);
 app.use('/', DonationRoute);
 app.use('/notifications', NotificationRoute);
+app.use('/donation', DonationRoute);
 
 
 

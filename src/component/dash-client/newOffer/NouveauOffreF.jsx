@@ -27,6 +27,7 @@ const NouveauOffreF = ({
     // user:"",
     categorie: "",
     ville: "",
+    quantityDispo:1,
     coordinates: {},
   };
 
@@ -79,6 +80,7 @@ const NouveauOffreF = ({
       newErrors.description = "La description est requise";
     if (!offer.adresse.trim()) newErrors.adresse = "L'adresse est requise";
     if (!offer.status) newErrors.status = "Le type est requis";
+    if (!offer.quantityDispo) newErrors.status = "Le quantity Disponible est requis";
     if (!offer.ville) newErrors.ville = "La ville est requise";
     if (!offer.coordinates.lat || !offer.coordinates.lng) {
       newErrors.coordinates = "Veuillez sélectionner votre position sur la carte";
@@ -418,7 +420,7 @@ const NouveauOffreF = ({
             onChange={(e) => handleInputChange(e, "status")}
           >
             <option value="">Sélectionner un type</option>
-            {role==="fournissuer" && <option value="vente">Vente</option>}
+            {role==="fournisseur" && <option value="vente">Vente</option>}
             <option value="echange">Échange</option>
             <option value="don">Don</option>
             
@@ -438,6 +440,16 @@ const NouveauOffreF = ({
             {errors.prix && <span className="error-text">{errors.prix}</span>}
           </label>
         )}
+        <label className="lbl-info-g">
+           Quantity Disponible :
+            <input
+              className={`inpt-info-g ${errors.quantityDispo ? "error-input" : ""}`}
+              type="text"
+              value={offer.quantityDispo}
+              onChange={(e) => handleInputChange(e, "quantityDispo")}
+            />
+            {errors.quantityDispo && <span className="error-text">{errors.quantityDispo}</span>}
+          </label>
 
         <label className="lbl-info-g">
           Description:

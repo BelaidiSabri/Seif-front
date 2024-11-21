@@ -1,3 +1,4 @@
+const Donation = require('../models/Donation.model');
 const Exchange = require('../models/Exchange.model');
 const Product = require('../models/Product.model');
 const User = require('../models/User.model');
@@ -228,75 +229,6 @@ if (minPrice || maxPrice) {
     }
 },
 
-
-
- /*  getAllProducts : async (req, res) => {
-    try {
-      const {
-        page = 1,
-        limit = 12,
-        category,
-        ville,
-        minPrice,
-        maxPrice,
-        search,
-        status,
-      } = req.query;
-  
-      // Build query filter
-      const filter = {};
-  
-      if (category) filter.categorie = category;
-      if (ville) filter.ville = ville;
-      if (status) filter.status = status;
-  
-      // Handle price filtering
-      if (minPrice || maxPrice) {
-        filter.prix = {};
-        if (minPrice) filter.prix.$gte = Number(minPrice);
-        if (maxPrice) filter.prix.$lte = Number(maxPrice);
-      }
-  
-      // Handle search
-      if (search) {
-        filter.$or = [
-          { nom: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } },
-        ];
-  
-        // If a category is selected, also filter by category
-        if (category) {
-          filter.$and = [
-            { $or: [
-              { nom: { $regex: search, $options: 'i' } },
-              { description: { $regex: search, $options: 'i' } },
-            ]},
-            { categorie: category }
-          ];
-        }
-      }
-  
-      // Execute query with pagination
-      const products = await Product.find(filter)
-        .populate('user', 'username email')
-        .limit(limit * 1)
-        .skip((page - 1) * limit)
-        .sort({ createdAt: -1 });
-  
-      // Get total documents count
-      const count = await Product.countDocuments(filter);
-  
-      res.json({
-        products,
-        totalPages: Math.ceil(count / limit),
-        currentPage: Number(page),
-        totalProducts: count,
-      });
-    } catch (error) {
-      return res.status(500).json({ msg: error.message });
-    }
-  }, */
-
   updateProduct: async (req, res) => {
     try {
       const { 
@@ -409,6 +341,11 @@ if (minPrice || maxPrice) {
             { productRequested: product._id }
           ]
         }).session(session);
+
+        // Delete related donations
+      const deletedDonations = await Donation.deleteMany({
+        product: product._id
+      }).session(session);
   
         // Remove product from user's products array
         await User.findByIdAndUpdate(req.user.id, {
@@ -556,7 +493,62 @@ if (minPrice || maxPrice) {
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
-  }
-};
+  },
+   deleteAllProducts: async (req, res) => {
+    try {
+      // Start a session for transaction
+      const session = await Product.startSession();
+      session.startTransaction();
+  
+      try {
+        // Fetch all products
+        const products = await Product.find().session(session);
+  
+        // Delete associated images from filesystem
+        await Promise.all(products.map(async (product) => {
+          if (Array.isArray(product.images) && product.images.length > 0) {
+            await Promise.all(product.images.map(async (imagePath) => {
+              try {
+                const fullPath = path.join(__dirname, '..', imagePath);
+                await fs.unlink(fullPath);
+              } catch (err) {
+                console.error(`Error deleting image ${imagePath}:`, err);
+                // Continue with deletion even if image removal fails
+              }
+            }));
+          }
+        }));
+  
+        // Delete related exchanges and donations
+        await Exchange.deleteMany({}).session(session);
+        await Donation.deleteMany({}).session(session);
+  
+        // Clear all products from users' products arrays
+        await User.updateMany({}, { $set: { products: [] } }).session(session);
+  
+        // Delete all products
+        const deletedProducts = await Product.deleteMany({}).session(session);
+  
+        // Commit the transaction
+        await session.commitTransaction();
+  
+        res.json({
+          msg: "All products deleted successfully",
+          deletedCount: deletedProducts.deletedCount
+        });
+      } catch (error) {
+        // If any error occurs, abort the transaction
+        await session.abortTransaction();
+        throw error; // Re-throw to be caught by outer try-catch
+      } finally {
+        // End the session
+        session.endSession();
+      }
+    } catch (error) {
+      console.error('Error in deleteAllProducts:', error);
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+}
 
 module.exports = productCtrl;

@@ -1,7 +1,8 @@
 const Exchange = require("../models/Exchange.model");
 const NotificationModel = require("../models/Notification.model");
-const Product = require("../models/Product.model");
 const mongoose = require('mongoose');
+const Product = require("../models/Product.model");
+const { createExchangeNotification } = require("./NotificationCtrl");
 
 // Propose a new exchange
 exports.proposeExchange = async (req, res) => {
@@ -13,6 +14,8 @@ exports.proposeExchange = async (req, res) => {
       Product.findById(productOfferedId),
       Product.findById(productRequestedId)
     ]);
+    
+    
 
     if (!offeredProduct || !requestedProduct) {
       return res.status(404).json({ message: "One or both products not found" });
@@ -54,8 +57,10 @@ exports.proposeExchange = async (req, res) => {
     await NotificationModel.create({
       user: requestedProduct.user,
       message: `New exchange proposal received for your product "${requestedProduct.nom}"`,
-      type: 'new_exchange'
+      type: 'exchange_requested', // Use a valid type here
+      exchange: exchange._id, // Add the exchange reference here
     });
+    
 
     res.status(201).json({ 
       message: "Exchange proposal created successfully",
@@ -167,8 +172,114 @@ exports.cancelExchange = async (req, res) => {
   }
 };
 
-// Update exchange status (accept/reject)
 exports.updateExchangeStatus = async (req, res) => {
+  const { status } = req.body;
+  const exchangeId = req.params.id;
+
+  try {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const exchange = await Exchange.findById(exchangeId)
+        .populate('productOffered')
+        .populate('productRequested')
+        .populate('offeredBy')
+        .populate('requestedTo');
+
+      if (!exchange) {
+        await session.abortTransaction();
+        return res.status(404).json({ message: "Exchange not found" });
+      }
+
+      if (exchange.requestedTo._id.toString() !== req.user.id) {
+        await session.abortTransaction();
+        return res.status(403).json({ message: "Not authorized to update this exchange" });
+      }
+
+      if (exchange.status !== "pending") {
+        await session.abortTransaction();
+        return res.status(400).json({ message: "Exchange is no longer pending" });
+      }
+
+      const [offeredProduct, requestedProduct] = await Promise.all([
+        Product.findById(exchange.productOffered).session(session),
+        Product.findById(exchange.productRequested).session(session)
+      ]);
+
+      if (!offeredProduct || !requestedProduct) {
+        await session.abortTransaction();
+        return res.status(404).json({ message: "One or both products no longer exist" });
+      }
+
+      if (offeredProduct.status !== "echange" || requestedProduct.status !== "echange") {
+        await session.abortTransaction();
+        return res.status(400).json({ message: "One or both products are no longer available for exchange" });
+      }
+
+      if (status === "accepted") {
+        await Promise.all([
+          Product.findByIdAndUpdate(
+            exchange.productOffered._id,
+            { status: "exchanged", user: exchange.requestedTo._id },
+            { session }
+          ),
+          Product.findByIdAndUpdate(
+            exchange.productRequested._id,
+            { status: "exchanged", user: exchange.offeredBy._id },
+            { session }
+          ),
+          Exchange.updateMany(
+            {
+              _id: { $ne: exchangeId },
+              status: "pending",
+              $or: [
+                { productOffered: { $in: [exchange.productOffered._id, exchange.productRequested._id] } },
+                { productRequested: { $in: [exchange.productOffered._id, exchange.productRequested._id] } }
+              ]
+            },
+            { status: "cancelled" },
+            { session }
+          )
+        ]);
+      }
+
+      exchange.status = status;
+      await exchange.save({ session });
+
+      // Create notifications based on the status (accepted or rejected)
+      const notificationType = status === "accepted" ? 'exchange_accepted' : 'exchange_rejected';
+      await Promise.all([
+        createExchangeNotification(exchange, notificationType),  // Only accepted or rejected
+        status === "cancelled" && createExchangeNotification(exchange, 'exchange_cancelled')  // Cancelled only if status is cancelled
+      ]);
+
+      await session.commitTransaction();
+
+      res.status(200).json({
+        message: `Exchange ${status} successfully`,
+        exchange: exchange.toObject()
+      });
+
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  } catch (error) {
+    console.error('Update Exchange Status Error:', error);
+    res.status(500).json({
+      message: "Error updating exchange status",
+      error: error.message || "Internal server error"
+    });
+  }
+};
+
+
+
+// Update exchange status (accept/reject)
+/* exports.updateExchangeStatus = async (req, res) => {
   const { status } = req.body;
   const exchangeId = req.params.id;
 
@@ -284,7 +395,7 @@ exports.updateExchangeStatus = async (req, res) => {
       error: error.message || "Internal server error" 
     });
   }
-};
+}; */
 
 // Delete all exchanges
 exports.deleteAllExchanges = async (req, res) => {

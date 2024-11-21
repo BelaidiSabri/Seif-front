@@ -233,6 +233,12 @@
 }
 
 /* Exchange List */
+.exchange-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
 .exchange-list {
   display: flex;
   flex-direction: column;

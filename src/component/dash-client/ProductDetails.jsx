@@ -5,6 +5,7 @@ import "../../CSS/ProductDetails.css";
 import Cookies from "js-cookie";
 import { useCart } from "../../contexts/CartContext";
 import notAvailableImg from "../../assets/Product-inside.png";
+import { PurchaseModal } from "./PuchaseModal";
 
 
 const ProductDetails = () => {
@@ -14,6 +15,8 @@ const ProductDetails = () => {
   const [showExchangeModal, setShowExchangeModal] = useState(false);
   const [userExchangeProducts, setUserExchangeProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+
   const { addToCart } = useCart();
   const baseURL = "http://localhost:5000";
   const token = Cookies.get("token");
@@ -67,6 +70,11 @@ const ProductDetails = () => {
     closeCheckout();
   };
 
+  const handlePurchaseSuccess = (purchaseData) => {
+    alert('Achat effectué avec succès!');
+    setShowPurchaseModal(false);
+  };
+
   const handleExchange = async () => {
     if (!selectedProduct) {
       alert("Please select a product to exchange.");
@@ -77,8 +85,8 @@ const ProductDetails = () => {
       await axios.post(
         `${baseURL}/exchange`,
         {
-          productOffered: selectedProduct._id,
-          productRequested: product._id,
+          productOfferedId: selectedProduct._id,
+          productRequestedId: product._id,
         },
         {
           headers: {
@@ -94,15 +102,45 @@ const ProductDetails = () => {
     }
   };
 
-  const handleAction = () => {
+  const handleAction = async () => {
     if (product.status === "don") {
-      alert("Request sent to get this product!");
+      try {
+        const userId = localStorage.getItem("userId"); 
+        if (!userId) {
+          alert("User not logged in.");
+          return;
+        }
+  
+        const response = await axios.post(
+          `${baseURL}/donation`,
+          {
+            productId: product._id,
+            recipientUserId: userId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+  
+        alert("Donation request sent successfully!");
+      } catch (error) {
+        console.error("Error sending donation request:", error);
+        alert(
+          error.response?.data?.message ||
+            "Failed to send donation request. Please try again later."
+        );
+      }
     } else if (product.status === "echange") {
       openExchangeModal();
+      
     } else {
-      openCheckout();
+      setShowPurchaseModal(true);
     }
   };
+  
 
   if (!product) return <p>Loading...</p>;
 
@@ -143,30 +181,6 @@ const ProductDetails = () => {
                 </div>
               )}
             </div>
-            <a
-              className="carousel-control-prev"
-              href="#productCarousel"
-              role="button"
-              data-slide="prev"
-            >
-              <span
-                className="carousel-control-prev-icon"
-                aria-hidden="true"
-              ></span>
-              <span className="sr-only">Previous</span>
-            </a>
-            <a
-              className="carousel-control-next"
-              href="#productCarousel"
-              role="button"
-              data-slide="next"
-            >
-              <span
-                className="carousel-control-next-icon"
-                aria-hidden="true"
-              ></span>
-              <span className="sr-only">Next</span>
-            </a>
           </div>
         </div>
         <div className="col-md-6 custom-product-info">
@@ -253,47 +267,54 @@ const ProductDetails = () => {
         </div>
       )}
 
-      {showExchangeModal && (
-        <div className="exchange-modal">
-          <div className="exchange-modal-content">
-            <h3>Exchange Product</h3>
-            <p>Select the product you want to exchange:</p>
-            {userExchangeProducts.length === 0 ? (
-              <p>No products available for exchange.</p>
-            ) : (
-              <div className="product-selection">
-                {userExchangeProducts.map((prod) => (
-                  <div
-                    key={prod._id}
-                    className={`product-item ${
-                      selectedProduct?._id === prod._id ? "selected" : ""
-                    }`}
-                    onClick={() => setSelectedProduct(prod)}
-                  >
-                    <img
-                      src={`${baseURL}${prod.imageUrls[0]}`}
-                      alt={prod.nom}
-                    />
-                    <h4>{prod.nom}</h4>
-                  </div>
-                ))}
-              </div>
-            )}
-            <button
-              onClick={handleExchange}
-              className="custom-btn custom-confirm-btn"
+{showExchangeModal && (
+  <div className="exchange-modal">
+    <div className="exchange-modal-content">
+      <h3>Échanger un Produit</h3>
+      <p>Sélectionnez le produit que vous souhaitez échanger :</p>
+      {userExchangeProducts.length === 0 ? (
+        <p>Aucun produit disponible pour échange.</p>
+      ) : (
+        <div className="product-selection">
+          {userExchangeProducts.map((prod) => (
+            <div
+              key={prod._id}
+              className={`product-item ${
+                selectedProduct?._id === prod._id ? "selected" : ""
+              }`}
+              onClick={() => setSelectedProduct(prod)}
             >
-              Submit Exchange
-            </button>
-            <button
-              onClick={closeExchangeModal}
-              className="custom-btn custom-cancel-btn"
-            >
-              Cancel
-            </button>
-          </div>
+              <img
+                src={`${baseURL}${prod.imageUrls[0]}`}
+                alt={prod.nom}
+              />
+              <h4>{prod.nom}</h4>
+            </div>
+          ))}
         </div>
       )}
+      <button
+        onClick={handleExchange}
+        className="custom-btn custom-confirm-btn"
+      >
+        Soumettre l'Échange
+      </button>
+      <button
+        onClick={closeExchangeModal}
+        className="custom-btn custom-cancel-btn"
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+)}
+    <PurchaseModal
+  product={product}
+  isOpen={showPurchaseModal}
+  onClose={() => setShowPurchaseModal(false)}
+  onPurchaseSuccess={handlePurchaseSuccess}
+/>
+
     </div>
   );
 };

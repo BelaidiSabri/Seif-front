@@ -9,4 +9,7 @@ router.get("/", auth, NotificationController.getNotifications);
 // Route to mark all notifications as read
 router.put("/mark-read", auth, NotificationController.markNotificationsRead);
 
+router.delete("/delete-all",auth, NotificationController.deleteAllNotifications);
+
+
 module.exports = router;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../../CSS/NavBar.css";
 import { FaBell, FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
 import { useCart } from "../../contexts/CartContext";
@@ -10,6 +10,7 @@ const NavBar = () => {
   const { cartItemCount } = useCart();
   const { unreadCount, notifications, markAsRead, loading } = useNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -17,6 +18,23 @@ const NavBar = () => {
       markAsRead();
     }
   };
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setShowDropdown(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showDropdown]);
 
   return (
     <nav className="navbarrr">
@@ -26,16 +44,16 @@ const NavBar = () => {
             <FaShoppingCart />
             {cartItemCount > 0 && <span className="cart-count">{cartItemCount}</span>}
           </Link>
-          <div className="notification-wrapper">
+          <div className="notification-wrapper" ref={dropdownRef}>
             <div className="navbar-icon">
-
-            <FaBell  onClick={toggleDropdown} />
-            {unreadCount > 0 && <span className="cart-count">{unreadCount}</span>}
+              <FaBell onClick={toggleDropdown} />
+              {unreadCount > 0 && <span className="cart-count">{unreadCount}</span>}
             </div>
             {showDropdown && (
               <NotificationDropdown
                 notifications={notifications}
                 loading={loading}
+                onClose={() => setShowDropdown(false)} 
               />
             )}
           </div>

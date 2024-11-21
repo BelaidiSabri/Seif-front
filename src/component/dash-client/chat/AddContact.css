@@ -21,6 +21,9 @@
   .add-contact ul {
     list-style: none;
     padding: 0;
+    max-height: 300px; 
+    overflow-y: auto; 
+    border: 1px solid #ddd;
   }
   
   .add-contact ul li {

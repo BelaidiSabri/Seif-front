@@ -11,6 +11,9 @@ const upload = require('../middleware/upload');
 // Get all products with filtering and pagination
 router.get('/products',auth, productCtrl.getAllProducts);
 
+// Delete all products (test only)
+router.delete('/delete-all', productCtrl.deleteAllProducts);
+
 router.get('/max-price', productCtrl.getMaxPrice);
 
 // Get single product details

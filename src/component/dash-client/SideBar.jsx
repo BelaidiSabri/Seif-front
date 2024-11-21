@@ -56,6 +56,12 @@ const handleLogout = () => {
             </Link>
           </li>
           <li>
+            <Link to="/don">
+            <i class="fa-solid fa-gift"></i>
+            don
+            </Link>
+          </li>
+          <li>
             <Link to="/Chat">
               <i className="fa-solid fa-comment"></i> Mes Contacts
             </Link>

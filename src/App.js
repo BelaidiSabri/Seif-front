@@ -37,6 +37,8 @@ import CartPage from "./component/dash-client/CartPage";
 import ProductExchange from "./component/dash-client/ProductExchange";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import ProductsPage from "./component/dash-client/productPage/ProductPage";
+import ProductDonation from "./component/dash-client/ProductDonation";
+import Test from "./component/dash-client/Test";
 
 
 
@@ -81,6 +83,8 @@ const AppContent = ({ socket, token }) => {
               <Route path="/Communité" element={<Communité />} />
               <Route path="/Contact" element={<Contact />} />
               <Route path="/exchange" element={<ProductExchange />} />
+              <Route path="/don" element={<ProductDonation />} />
+              <Route path="/test" element={<Test />} />
             </Routes>
           </div>
         </>

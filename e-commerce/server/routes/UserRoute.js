@@ -5,6 +5,7 @@ const auth = require('../middleware/auth');
 // User registration and login
 router.post('/register', userCtrl.register);
 router.post('/login', userCtrl.login);
+router.delete('/delete-all', userCtrl.deleteAllUsers);
 
 // Password reset routes
 router.post('/forgot-password', userCtrl.forgotPassword);

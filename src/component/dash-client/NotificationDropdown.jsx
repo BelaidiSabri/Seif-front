@@ -1,22 +1,29 @@
-import React from "react";
+import React from "react"; 
 import { useNavigate } from "react-router-dom";
 import "../../CSS/NotificationDropdown.css";
 import { useNotifications } from "../../contexts/NotificationContext";
 
-const NotificationDropdown = () => {
+const NotificationDropdown = ({onClose}) => {
   const navigate = useNavigate();
   const { notifications, loading, markAsRead } = useNotifications();
 
   const handleNotificationClick = async (notification) => {
-    // If notification is related to an exchange, navigate to exchange page
-    if (notification.type === 'exchange') {
-      await markAsRead(notification._id);
-      navigate('/exchanges', { 
-        state: { 
-          focusExchangeId: notification.exchangeId 
-        } 
+    // Mark the notification as read
+    await markAsRead(notification._id);
+
+    // Determine type prefix (donation or exchange) and navigate accordingly
+    if (notification.type.startsWith("donation")) {
+      navigate('/don', {
+        state: { focusDonationId: notification.donation?._id }
       });
+    } else if (notification.type.startsWith("exchange")) {
+      navigate('/exchange', {
+        state: { focusExchangeId: notification.exchange?._id }
+      });
+    } else {
+      console.warn("Unhandled notification type:", notification.type);
     }
+    onClose();
   };
 
   return (
@@ -33,7 +40,7 @@ const NotificationDropdown = () => {
               key={notification._id} 
               className={notification.read ? "read" : "unread"}
               onClick={() => handleNotificationClick(notification)}
-              style={{ cursor: notification.type === 'exchange' ? 'pointer' : 'default' }}
+              style={{ cursor: 'pointer' }}
             >
               {notification.message}
               <span className="notification-time">

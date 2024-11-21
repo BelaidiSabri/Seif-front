@@ -46,6 +46,7 @@ const ProductSchema = new mongoose.Schema({
   quantityDispo: { 
     type: Number,
     default: 1,
+    required: [true, 'Description is required'],
     min: [0, 'Quantity cannot be negative']
   },
   

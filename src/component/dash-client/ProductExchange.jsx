@@ -8,6 +8,7 @@ const ProductExchange = ({ currentProduct }) => {
   // États pour gérer les données et le statut de l'interface utilisateur
   const [userProducts, setUserProducts] = useState([]);
   const [exchanges, setExchanges] = useState([]);
+  const [donationProducts, setDonationProducts] = useState([]);
   const [filteredExchanges, setFilteredExchanges] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -17,10 +18,12 @@ const ProductExchange = ({ currentProduct }) => {
   const baseURL = "http://localhost:5000";
   const token = Cookies.get("token");
 
+
   // Chargement initial des données
   useEffect(() => {
-    fetchUserProducts();
+    // fetchUserProducts();
     fetchExchanges();
+    fetchDonationProducts();
   }, []);
 
   useEffect(() => {
@@ -28,7 +31,7 @@ const ProductExchange = ({ currentProduct }) => {
   }, [exchanges, filter]);
 
   // Récupération des produits de l'utilisateur
-  const fetchUserProducts = async () => {
+/*   const fetchUserProducts = async () => {
     try {
       const userId = localStorage.getItem('userId');
       if (!userId) {
@@ -46,7 +49,7 @@ const ProductExchange = ({ currentProduct }) => {
     } catch (err) {
       setError('Échec lors de la récupération de vos produits');
     }
-  };
+  }; */
 
   // Récupération des demandes d'échange
   const fetchExchanges = async () => {
@@ -62,6 +65,22 @@ const ProductExchange = ({ currentProduct }) => {
       setError('Échec lors de la récupération des demandes d’échange');
     }
   };
+
+  //fetch donations
+  const fetchDonationProducts = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/donation`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      setDonationProducts(response.data.products); // Adjust key based on response
+    } catch (err) {
+      setError('Échec lors de la récupération des dons');
+    }
+  };
+  
 
   // Gestion des actions sur les échanges
   const handleExchangeAction = async (exchangeId, action) => {
@@ -133,14 +152,14 @@ const ProductExchange = ({ currentProduct }) => {
       return (
         <div className="exchange-actions">
           <button
-            className="btn accept-btn"
+            className="exchange-btn accept-btn"
             onClick={() => handleExchangeAction(exchange._id, 'accept')}
             disabled={loading}
           >
             Accepter l'échange
           </button>
           <button
-            className="btn reject-btn"
+            className="exchange-btn reject-btn"
             onClick={() => handleExchangeAction(exchange._id, 'reject')}
             disabled={loading}
           >
@@ -220,7 +239,7 @@ const ProductExchange = ({ currentProduct }) => {
                         </span>
                         <span className="exchange-text">
                           {exchange.userRole === 'recipient' ? 
-                            'souhaite échanger son produit contre le vôtre' : 
+                            'souhaite échanger Leur produit contre le vôtre' : 
                             'a demandé un échange avec'}
                         </span>
                         {exchange.userRole === 'requester' && 
@@ -231,30 +250,36 @@ const ProductExchange = ({ currentProduct }) => {
                   </div>
 
                   <div className="exchange-products">
-                    <div className="product-card">
+                    <div className="exchange-product-card">
                       <div className="product-label">
-                        {exchange.userRole === 'recipient' ? 'Son produit' : 'Votre produit'}
+                        {exchange.userRole === 'recipient' ? 'Leur produit' : 'Votre produit'}
                       </div>
+                      <div className='exchange-item-wrapper'>
+
                       <img 
                         src={`${baseURL}${exchange.productOffered.images[0]}`}
                         alt={exchange.productOffered.nom}
                         className="exchange-product-image"
-                      />
+                        />
                       <h4>{exchange.productOffered.nom}</h4>
+                        </div>
                     </div>
 
                     <div className="exchange-arrow">↔</div>
 
-                    <div className="product-card">
+                    <div className="exchange-product-card">
                       <div className="product-label">
-                        {exchange.userRole === 'recipient' ? 'Votre produit' : 'Son produit'}
+                        {exchange.userRole === 'recipient' ? 'Votre produit' : 'Leur produit'}
                       </div>
+                      <div className='exchange-item-wrapper'>
+
                       <img 
                         src={`${baseURL}${exchange.productRequested.images[0]}`}
                         alt={exchange.productRequested.nom}
                         className="exchange-product-image"
-                      />
+                        />
                       <h4>{exchange.productRequested.nom}</h4>
+                        </div>
                     </div>
                   </div>
 
