@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import AddContact from "./AddContact";
 
-const ChatBar = ({ selectContact, currentUser, onAddContact, messages }) => {
+const ChatBar = ({ selectContact, currentUser }) => {
   const [contacts, setContacts] = useState([]);
-  const [selectedContactId, setSelectedContactId] = useState(null); // State for selected contact
-  
-  const modalRef = useRef(null); // Create a ref for the modal element
+  const [selectedContactId, setSelectedContactId] = useState(null);
+  const modalRef = useRef(null);
 
+  // Fetch contacts on component mount
   useEffect(() => {
     const fetchContacts = async () => {
       try {
@@ -16,7 +16,6 @@ const ChatBar = ({ selectContact, currentUser, onAddContact, messages }) => {
           `http://localhost:5000/user/contacts/${userId}`
         );
         setContacts(response.data);
-        console.log("contacts", response.data);
       } catch (error) {
         console.error("Error fetching contacts:", error);
       }
@@ -25,20 +24,44 @@ const ChatBar = ({ selectContact, currentUser, onAddContact, messages }) => {
     fetchContacts();
   }, []);
 
+  // Open modal
   const openModal = () => {
-    const modalElement = modalRef.current; // Get the modal element
-    const modal = new window.bootstrap.Modal(modalElement); // Initialize Bootstrap modal
-    modal.show(); // Show the modal
+    const modalElement = modalRef.current;
+    if (modalElement) {
+      const modal = new window.bootstrap.Modal(modalElement);
+      modal.show();
+    }
   };
 
-  const handleAddContact = async (contactName) => {
+  // Close modal
+  const closeModal = () => {
+    const modalElement = modalRef.current;
+    if (modalElement) {
+      const modal = window.bootstrap.Modal.getInstance(modalElement);
+      modal.hide();
+    }
+  };
+
+  // Add a new contact
+  const handleAddContact = async (contactEmail) => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/user/search?email=" + contactName
-      );
-      const data = await response.json();
-      if (data._id) {
-        // Add contact logic here
+      const userId = localStorage.getItem("userId");
+      const response = await axios.post("http://localhost:5000/user/add-contact", {
+        userId,
+        contactEmail,
+      });
+
+      if (response.data.success) {
+        // Fetch the updated contact list
+        const updatedContacts = await axios.get(
+          `http://localhost:5000/user/contacts/${userId}`
+        );
+        setContacts(updatedContacts.data);
+
+        // Close the modal
+        closeModal();
+      } else {
+        console.error("Failed to add contact:", response.data.message);
       }
     } catch (error) {
       console.error("Error adding contact:", error);
@@ -54,8 +77,8 @@ const ChatBar = ({ selectContact, currentUser, onAddContact, messages }) => {
   };
 
   const handleContactClick = (contact) => {
-    setSelectedContactId(contact._id); // Update selected contact ID in state
-    selectContact(contact); // Call the parent component's selectContact function
+    setSelectedContactId(contact._id);
+    selectContact(contact);
   };
 
   return (
@@ -73,7 +96,7 @@ const ChatBar = ({ selectContact, currentUser, onAddContact, messages }) => {
             </button>
           </div>
 
-          {/* Modal */}
+          {/* Modal for adding a contact */}
           <div
             className="modal fade"
             ref={modalRef}
@@ -96,7 +119,6 @@ const ChatBar = ({ selectContact, currentUser, onAddContact, messages }) => {
                   ></button>
                 </div>
                 <div className="modal-body">
-                  {/* Modal body content */}
                   <AddContact
                     currentUser={currentUser}
                     onAddContact={handleAddContact}
@@ -107,6 +129,7 @@ const ChatBar = ({ selectContact, currentUser, onAddContact, messages }) => {
                     type="button"
                     className="btn btn-secondary"
                     data-bs-dismiss="modal"
+                    // onClick={()=>{window.location.reload()}}
                   >
                     Fermer
                   </button>
@@ -116,12 +139,15 @@ const ChatBar = ({ selectContact, currentUser, onAddContact, messages }) => {
           </div>
         </div>
 
+        {/* Contact list */}
         <div className="chat__users">
           {contacts.map((contact) => (
             <div
               key={contact._id}
-              onClick={() => handleContactClick(contact)} // Call the handler on click
-              className={`chat-user-item ${selectedContactId === contact._id ? 'selected' : ''}`} // Add 'selected' class if the contact is selected
+              onClick={() => handleContactClick(contact)}
+              className={`chat-user-item ${
+                selectedContactId === contact._id ? "selected" : ""
+              }`}
             >
               <div className="chat-user-info">
                 <div className="chat-user-avatar">
@@ -141,14 +167,10 @@ const ChatBar = ({ selectContact, currentUser, onAddContact, messages }) => {
                   <p className="chat-user-name">
                     <b>{contact.name}</b>
                   </p>
-                  {/* <p style={{color:'#333333', fontSize:'13px'}}>message preview</p> */}
                 </div>
               </div>
               <div className="chat-user-time">
                 <p>12:50</p>
-                {/* <div className="msg-numbers">
-                  <p>5</p>
-                </div> */}
               </div>
             </div>
           ))}

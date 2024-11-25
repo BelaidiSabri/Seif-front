@@ -27,7 +27,7 @@ const ChatBody = ({ messages, typingStatus, lastMessageRef, user }) => {
       <header className="chat__mainHeader">
         <p style={{ fontSize: "18px" }}>
           <b>
-            Chat with{" "}
+            Chat avec{" "}
             {messages[0]?.sender === localStorage.getItem("userName")
               ? "You"
               : user.name}

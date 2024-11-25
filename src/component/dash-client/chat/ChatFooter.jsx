@@ -96,13 +96,13 @@ const ChatFooter = ({ selectedContact, socket }) => {
           <button type="submit" className="send-button">
             <i className="fa fa-paper-plane send-icon" aria-hidden="true"></i>
           </button>
-          <button type="button" className="exchange-button" onClick={toggleExchangeModal}>
+      {/*     <button type="button" className="exchange-button" onClick={toggleExchangeModal}>
             Échanger
-          </button>
+          </button> */}
         </div>
       </form>
 
-      {showExchangeModal && (
+   {/*    {showExchangeModal && (
         <div
           style={{
             position: "fixed",
@@ -190,7 +190,7 @@ const ChatFooter = ({ selectedContact, socket }) => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </footer>
   );
 };
