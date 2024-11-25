@@ -102,7 +102,7 @@ const ProductFilters = ({
               <div className="filter-inputs-range">
                 <div className="filter-inputs">
                   <div>
-                    <label>Min Price</label>
+                    <label>Min Prix</label>
                     <input
                       className="form-control me-2"
                       type="number"
@@ -113,7 +113,7 @@ const ProductFilters = ({
                     />
                   </div>
                   <div>
-                    <label>Max Price</label>
+                    <label>Max Prix</label>
                     <input
                       type="number"
                       className="form-control me-2"

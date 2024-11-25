@@ -33,3 +33,8 @@
 .card-text {
     margin: 0.5rem 0;
 }
+.product-page-title {
+    font-size: 2.5rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}

@@ -85,6 +85,17 @@ const NouveauOffreF = ({
     if (!offer.coordinates.lat || !offer.coordinates.lng) {
       newErrors.coordinates = "Veuillez sélectionner votre position sur la carte";
     }
+    if (!offer.numtel) {
+      newErrors.numtel = "Le numéro de téléphone est requis";
+    } else {
+      // Remove any spaces or special characters
+      const cleanPhone = offer.numtel.replace(/\D/g, '');
+      if (cleanPhone.length !== 8) {
+        newErrors.numtel = "Le numéro de téléphone doit contenir exactement 8 chiffres";
+      } else if (!/^\d{8}$/.test(cleanPhone)) {
+        newErrors.numtel = "Le numéro de téléphone doit contenir uniquement des chiffres";
+      }
+    }
 
     // Phone number validation
     /* const phoneRegex = /^\+216[0-9]{8}$/;
@@ -211,8 +222,8 @@ const NouveauOffreF = ({
             "Content-Type": "multipart/form-data",
           },
         });
-        setSubmitSuccess("Offre publiée avec succès!");
-        setToastMessage("Offre publiée avec succès!"); // Trigger toast in parent
+        setSubmitSuccess("Produit publiée avec succès!");
+        setToastMessage("Produit publiée avec succès!"); // Trigger toast in parent
       }
 
       setOffer(initialState); // Reset form
@@ -225,7 +236,7 @@ const NouveauOffreF = ({
       console.error("Error submitting offer:", error);
       setSubmitError(
         error.response?.data?.message ||
-          "Une erreur s'est produite lors de la publication de l'offre. Veuillez réessayer."
+          "Une erreur s'est produite lors de la publication de produit. Veuillez réessayer."
       );
     } finally {
       setLoading(false);
@@ -275,9 +286,9 @@ const NouveauOffreF = ({
 
   return (
     <div className="share-offer">
-      <h2 ref={errorRef}>
-        {productToEdit ? "Update offre" : "Partager un nouveau offre"}
-      </h2>
+      <p className="offer-page-title" ref={errorRef}>
+        {productToEdit ? "Modifier le produit" : "Partager un nouveau Produit"}
+      </p>
 
       {submitError && (
         <div
@@ -347,8 +358,9 @@ const NouveauOffreF = ({
           Téléphone:
           <input
             className={`inpt-info-g ${errors.numtel ? "error-input" : ""}`}
-            placeholder="+216.."
+            placeholder="22 222 222"
             type="text"
+            maxLength={8}
             value={offer.numtel}
             onChange={(e) => handleInputChange(e, "numtel")}
           />
@@ -433,7 +445,7 @@ const NouveauOffreF = ({
             Prix:
             <input
               className={`inpt-info-g ${errors.prix ? "error-input" : ""}`}
-              type="text"
+              type="number"
               value={offer.prix}
               onChange={(e) => handleInputChange(e, "prix")}
             />
@@ -516,8 +528,8 @@ const NouveauOffreF = ({
             {loading
               ? "Chargement..."
               : productToEdit
-              ? "Mettre à jour l'offre"
-              : "Partager l'offre"}
+              ? "Mettre à jour"
+              : "Partager"}
           </button>
           <button
             type="button"

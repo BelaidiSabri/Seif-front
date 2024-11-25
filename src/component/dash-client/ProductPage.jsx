@@ -178,7 +178,7 @@ const ProductsPage = () => {
 
   return (
     <div className="container my-4">
-      <h2 className="text-center mb-4">Produits</h2>
+      <p className="product-page-title">Produits</p>
 
       {/* Location search section */}
       <div className="mb-4">

@@ -3,9 +3,12 @@ import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import Footer from "./Footer";
 import axios from 'axios';
+import Cookies from "js-cookie";
 
 const Dashboard = () => {
   const [products, setProducts] = useState([]);
+  const [sellerEarnings, setSellerEarnings] = useState(0);
+  const token = Cookies.get("token");
   const [chartData, setChartData] = useState({
     series: [{
       name: 'Net Profit',
@@ -58,28 +61,46 @@ const Dashboard = () => {
     },
   });
 
+
+  const id = localStorage.getItem('userId')
+
   useEffect(() => {
     // Fetching products data from API
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/product/products");
+        const response = await axios.get("http://localhost:5000/product/products", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
         setProducts(response.data.products);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
     };
 
+    const fetchSellerEarnings = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/transactions/seller/${id}`); 
+        setSellerEarnings(response.data.totalEarnings);
+      } catch (error) {
+        console.error("Error fetching seller earnings:", error);
+      }
+    };
+
+    fetchSellerEarnings()
     fetchProducts();
   }, []);
 
   return (
     <div className="dashboard">
-      <h2>Dashboard :</h2>
+      <p className="dashboard-page-title">Tableau de bord</p>
       <div className="top-cards">
         <div className="card-dash blue">
           <h3>Vendée</h3>
           <p>(Budget)</p>
-          <h2>0 dt</h2>
+          <h2>{sellerEarnings} TND</h2>
         </div>
         <div className="card-dash white">
           <h3>Products</h3>

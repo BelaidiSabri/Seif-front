@@ -50,6 +50,11 @@ const handleLogout = () => {
             </Link>
           </li>
           <li>
+            <Link to="/ordre">
+            <i className="fa-solid fa-clipboard-list"></i> Ordres 
+            </Link>
+          </li>
+          <li>
             <Link to="/exchange">
             <i class="fa-solid fa-right-left"></i>
             Echanges

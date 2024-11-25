@@ -4,10 +4,10 @@ import Cookies from 'js-cookie';
 import '../../CSS/PurchaseModal.css';
 
 export const PurchaseModal = ({ 
-  product, 
   isOpen, 
   onClose, 
-  onPurchaseSuccess 
+  product, 
+  onTransactionSuccess 
 }) => {
   const [purchaseMethod, setPurchaseMethod] = useState(null);
   const [formData, setFormData] = useState({
@@ -26,6 +26,8 @@ export const PurchaseModal = ({
     }
   });
 
+  
+
   const handleInputChange = (method, field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -42,27 +44,38 @@ export const PurchaseModal = ({
     const userId = localStorage.getItem('userId');
 
     try {
-      const purchaseData = {
-        productId: product._id,
+      // Prepare transaction data based on method (online or delivery)
+      const transactionData = {
         userId,
         purchaseMethod,
-        ...(purchaseMethod === 'online' ? 
-          { paymentDetails: formData.online } : 
-          { deliveryDetails: formData.delivery }
-        )
+        cartItems: product.cartItems.map(item => ({
+          productId: item._id,
+          price: item.price,
+          sellerId: item.sellerId,
+          quantity: item.quantity // Ensure quantity is included in the transaction
+        })),
+        ...(purchaseMethod === 'online' 
+          ? { 
+              paymentDetails: formData.online 
+          } 
+          : { 
+              deliveryDetails: formData.delivery 
+          })
       };
 
-      const response = await axios.post('http://localhost:5000/purchase', purchaseData, {
+      // Send the transaction request
+      const response = await axios.post('http://localhost:5000/transaction', transactionData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
-      onPurchaseSuccess(response.data);
-      onClose();
+      // Notify parent component about the successful transaction
+      onTransactionSuccess(response.data);
+      onClose(); // Close the modal
     } catch (error) {
-      console.error('Purchase error:', error);
+      console.error('Transaction error:', error);
       alert('Échec de la transaction. Veuillez réessayer.');
     }
   };
@@ -81,6 +94,8 @@ export const PurchaseModal = ({
             onClick={() => setPurchaseMethod('online')}
           >
             <p className='purchase-modal-subtitle'>Paiement en Ligne</p>
+            <button onClick={()=>{console.log(product);
+            }} >test</button>
             <p>Payez directement sur notre plateforme</p>
           </div>
           

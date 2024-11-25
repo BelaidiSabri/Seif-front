@@ -26,7 +26,7 @@ const ProductComponent = ({ product }) => {
         <h5 className="product-card-title">{product.nom}</h5>
         <p className="product-card-category text-muted">{product.categorie}</p>
         <p className="product-card-price">
-          <strong>Prix:</strong>{" "}
+        {product.status === "vente" ? <strong>Prix: </strong>: null}
           {product.status === "vente" ? product.formattedPrice : product.status}
         </p>
         <p className="product-card-location">

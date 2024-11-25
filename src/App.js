@@ -39,6 +39,8 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import ProductsPage from "./component/dash-client/productPage/ProductPage";
 import ProductDonation from "./component/dash-client/ProductDonation";
 import Test from "./component/dash-client/Test";
+import BuyerPurchaseHistory from "./component/dash-client/BuyerPurchaseHistory";
+import SellerHistory from "./component/dash-client/SellerHistory";
 
 
 
@@ -85,6 +87,8 @@ const AppContent = ({ socket, token }) => {
               <Route path="/exchange" element={<ProductExchange />} />
               <Route path="/don" element={<ProductDonation />} />
               <Route path="/test" element={<Test />} />
+              <Route path="/history" element={<BuyerPurchaseHistory />} />
+              <Route path="/ordre" element={<SellerHistory />} />
             </Routes>
           </div>
         </>

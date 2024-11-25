@@ -14,11 +14,10 @@ function Login({ socket }) {
   const [registerError, setRegisterError] = useState(null);
   const [loginError, setLoginError] = useState(null);
   const navigate = useNavigate();
-  const [showToast, setShowToast] = useState(false); // State to manage toast visibility
-  const checkboxRef = useRef(null); 
+  const [showToast, setShowToast] = useState(false);
+  const checkboxRef = useRef(null);
   const toastRef = useRef(null);
-
-
+  const [showMatricule, setShowMatricule] = useState(false);
 
   useEffect(() => {
     if (showToast && toastRef.current) {
@@ -26,7 +25,6 @@ function Login({ socket }) {
       toast.show();
     }
   }, [showToast]);
-
 
   const [visibility, setVisibility] = useState({
     signupPassword: false,
@@ -46,7 +44,12 @@ function Login({ socket }) {
     handleSubmit: handleSignupSubmit,
     formState: { errors: signupErrors },
     reset: resetSignup,
-  } = useForm();
+    watch,
+  } = useForm({
+    defaultValues: {
+      role: 'client', // Set default role to client
+    }
+  });
 
   const {
     control: loginControl,
@@ -54,11 +57,16 @@ function Login({ socket }) {
     formState: { errors: loginErrors },
   } = useForm();
 
+  // Watch the role field to show/hide matricule fiscale
+  const selectedRole = watch('role');
+  useEffect(() => {
+    setShowMatricule(selectedRole === 'fournisseur');
+  }, [selectedRole]);
+
   const loginSubmit = async (data) => {
     try {
       const res = await axios.post("http://localhost:5000/user/login", data);
       const { accesstoken, user } = res.data;
-      
 
       Cookies.set("token", accesstoken);
       localStorage.setItem("userName", user.name);
@@ -73,14 +81,14 @@ function Login({ socket }) {
 
       window.location.href = "/";
     } catch (error) {
-      setLoginError("Login failed. Please check your credentials.");
+      setLoginError("Échec de la connexion. Veuillez vérifier vos identifiants.");
     }
   };
 
   const registerSubmit = async (data) => {
     try {
       if (data.password !== data.confirmPassword) {
-        setRegisterError("Passwords do not match.");
+        setRegisterError("Les mots de passe ne correspondent pas.");
         return;
       }
 
@@ -98,8 +106,7 @@ function Login({ socket }) {
       if (error.response && error.response.data && error.response.data.msg) {
         setRegisterError(error.response.data.msg);
       } else {
-        // Generic error handling
-        setRegisterError("Registration failed. Please try again.");
+        setRegisterError("L'inscription a échoué. Veuillez réessayer.");
       }
     }
   };
@@ -108,7 +115,6 @@ function Login({ socket }) {
     <div className="l">
       <div className="main">
         <input ref={checkboxRef} type="checkbox" id="chk" aria-hidden="true" />
-                {/* Toast Notification */}
         <div
           ref={toastRef}
           className="toast align-items-center text-white bg-success border-0 position-fixed bottom-0 start-0 m-3"
@@ -120,134 +126,143 @@ function Login({ socket }) {
           style={{ zIndex: 1050 }}
         >
           <div className="d-flex">
-            <div className="toast-body">Signup Successful!</div>
+            <div className="toast-body">Inscription réussie !</div>
             <button
               type="button"
               className="btn-close btn-close-white me-2 m-auto"
               onClick={() => setShowToast(false)}
-              aria-label="Close"
+              aria-label="Fermer"
             ></button>
           </div>
         </div>
-    
+
         <div className="signup">
           <form onSubmit={handleSignupSubmit(registerSubmit)}>
             <label className="label" htmlFor="chk" aria-hidden="true">
-              Sign up
+              S'inscrire
             </label>
             <div className="form-inputs">
               <div className="input-wrapper-signup">
                 <Controller
                   name="name"
                   control={signupControl}
-                  rules={{ required: "Name is required" }}
+                  rules={{ required: "Le nom est requis" }}
                   render={({ field }) => (
-                    <input {...field} className="input" type="text" placeholder="Name" />
+                    <input {...field} className="input" type="text" placeholder="Nom" />
                   )}
                 />
-              {signupErrors.name && <p className="error">{signupErrors.name.message}</p>}
+                {signupErrors.name && <p className="error">{signupErrors.name.message}</p>}
               </div>
 
               <div className="input-wrapper-signup">
-              <Controller
-    name="role"
-    control={signupControl}
-    rules={{ required: "Role is required" }}
-    render={({ field }) => (
-      <select
-        {...field}
-        style={{
-          width: "100%",
-          padding: "11px 35px",
-          backgroundColor: "white",
-          borderRadius: "5px",
-          border: "none",
-          outline: "none",
-        }}
-      >
-        <option value="" disabled>
-          Select Role
-        </option>
-        <option value="client">Client</option>
-        <option value="fournisseur">Fournisseur</option>
-      </select>
-    )}
-  />
-  {signupErrors.role && <p className="error">{signupErrors.role.message}</p>}
+                <Controller
+                  name="role"
+                  control={signupControl}
+                  rules={{ required: "Le rôle est requis" }}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      style={{
+                        width: "100%",
+                        padding: "11px 35px",
+                        backgroundColor: "white",
+                        borderRadius: "5px",
+                        border: "none",
+                        outline: "none",
+                      }}
+                    >
+                      <option value="client">Client</option>
+                      <option value="fournisseur">Fournisseur</option>
+                    </select>
+                  )}
+                />
+                {signupErrors.role && <p className="error">{signupErrors.role.message}</p>}
               </div>
+
+              {showMatricule && (
+                <div className="input-wrapper-signup">
+                  <Controller
+                    name="matriculeFiscale"
+                    control={signupControl}
+                    rules={{ required: "Le matricule fiscale est requis" }}
+                    render={({ field }) => (
+                      <input {...field} className="input" type="text" placeholder="Matricule Fiscale" />
+                    )}
+                  />
+                  {signupErrors.matriculeFiscale && <p className="error">{signupErrors.matriculeFiscale.message}</p>}
+                </div>
+              )}
 
               <div className="input-wrapper-signup">
                 <Controller
                   name="email"
                   control={signupControl}
                   rules={{
-                    required: "Email is required",
+                    required: "L'email est requis",
                     pattern: {
                       value: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
-                      message: "Invalid email format",
+                      message: "Format d'email invalide",
                     },
                   }}
                   render={({ field }) => (
                     <input {...field} className="input" type="email" placeholder="Email" />
                   )}
                 />
-              {signupErrors.email && <p className="error">{signupErrors.email.message}</p>}
+                {signupErrors.email && <p className="error">{signupErrors.email.message}</p>}
               </div>
 
               <div className="input-wrapper-signup">
                 <div className="password-input">
-
-                <Controller
-                  name="password"
-                  control={signupControl}
-                  rules={{ required: "Password is required" }}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      className="input"
-                      type={visibility.signupPassword ? "text" : "password"}
-                      placeholder="Password"
+                  <Controller
+                    name="password"
+                    control={signupControl}
+                    rules={{ required: "Le mot de passe est requis" }}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        className="input"
+                        type={visibility.signupPassword ? "text" : "password"}
+                        placeholder="Mot de passe"
                       />
                     )}
-                    />
-                <FontAwesomeIcon
-                  icon={visibility.signupPassword ? faEyeSlash : faEye}
-                  onClick={() => toggleVisibility("signupPassword")}
-                  className="icon"
-                  style={{ cursor: "pointer" }}
                   />
-                  </div>
-              {signupErrors.password && <p className="error">{signupErrors.password.message}</p>}
+                  <FontAwesomeIcon
+                    icon={visibility.signupPassword ? faEyeSlash : faEye}
+                    onClick={() => toggleVisibility("signupPassword")}
+                    className="icon"
+                    style={{ cursor: "pointer" }}
+                  />
+                </div>
+                {signupErrors.password && <p className="error">{signupErrors.password.message}</p>}
               </div>
 
               <div className="input-wrapper-signup">
                 <div className="password-input">
-
-                <Controller
-                  name="confirmPassword"
-                  control={signupControl}
-                  rules={{ required: "Confirm Password is required" }}
-                  render={({ field }) => (
-                    <input
-                    {...field}
-                    className="input"
-                    type={visibility.confirmPassword ? "text" : "password"}
-                    placeholder="Confirm Password"
-                    />
-                  )}
+                  <Controller
+                    name="confirmPassword"
+                    control={signupControl}
+                    rules={{ required: "La confirmation du mot de passe est requise" }}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        className="input"
+                        type={visibility.confirmPassword ? "text" : "password"}
+                        placeholder="Confirmer le mot de passe"
+                      />
+                    )}
                   />
-                <FontAwesomeIcon
-                  icon={visibility.confirmPassword ? faEyeSlash : faEye}
-                  onClick={() => toggleVisibility("confirmPassword")}
-                  className="icon"
-                  style={{ cursor: "pointer" }}
+                  <FontAwesomeIcon
+                    icon={visibility.confirmPassword ? faEyeSlash : faEye}
+                    onClick={() => toggleVisibility("confirmPassword")}
+                    className="icon"
+                    style={{ cursor: "pointer" }}
                   />
-                  </div>
-              {signupErrors.confirmPassword && <p className="error">{signupErrors.confirmPassword.message}</p>}
+                </div>
+                {signupErrors.confirmPassword && <p className="error">{signupErrors.confirmPassword.message}</p>}
               </div>
 
               <button type="submit" className="button">
-                Sign up
+                S'inscrire
               </button>
 
               {registerError && <p className="error">{registerError}</p>}
@@ -258,58 +273,59 @@ function Login({ socket }) {
         <div className="login">
           <form onSubmit={handleLoginSubmit(loginSubmit)}>
             <label className="label" htmlFor="chk" aria-hidden="true">
-              Login
+              Se connecter
             </label>
             <div className="form-inputs">
-
-            <div className="input-wrapper-login">
-              <Controller
-                name="email"
-                control={loginControl}
-                rules={{
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
-                    message: "Invalid email format",
-                  },
-                }}
-                render={({ field }) => (
-                  <input {...field} className="input" type="email" placeholder="Email" />
-                )}
+              <div className="input-wrapper-login">
+                <Controller
+                  name="email"
+                  control={loginControl}
+                  rules={{
+                    required: "L'email est requis",
+                    pattern: {
+                      value: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
+                      message: "Format d'email invalide",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <input {...field} className="input" type="email" placeholder="Email" />
+                  )}
                 />
-            </div>
-            {loginErrors.email && <p className="error">{loginErrors.email.message}</p>}
+                {loginErrors.email && <p className="error">{loginErrors.email.message}</p>}
+              </div>
 
-            <div className="input-wrapper-login">
-              <Controller
-                name="password"
-                control={loginControl}
-                rules={{ required: "Password is required" }}
-                render={({ field }) => (
-                  <input
-                  {...field}
-                  className="input"
-                  type={visibility.loginPassword ? "text" : "password"}
-                  placeholder="Password"
-                  />
-                )}
+              <div className="input-wrapper-login">
+              <div className="password-input">
+                <Controller
+                  name="password"
+                  control={loginControl}
+                  rules={{ required: "Le mot de passe est requis" }}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      className="input"
+                      type={visibility.loginPassword ? "text" : "password"}
+                      placeholder="Mot de passe"
+                    />
+                  )}
                 />
-              <FontAwesomeIcon
-                icon={visibility.loginPassword ? faEyeSlash : faEye}
-                onClick={() => toggleVisibility("loginPassword")}
-                className="icon"
-                style={{ cursor: "pointer" }}
+                <FontAwesomeIcon
+                  icon={visibility.loginPassword ? faEyeSlash : faEye}
+                  onClick={() => toggleVisibility("loginPassword")}
+                  className="icon"
+                  style={{ cursor: "pointer" }}
                 />
-            </div>
-            <a style={{alignSelf:'end', width:"70%", margin:'auto', fontSize:'.85rem'}} href="/forgot-password">mot de passe oublié ?</a>
-            {loginErrors.password && <p className="error">{loginErrors.password.message}</p>}
-
-            <button type="submit" className="button">
-              Login
-            </button>
-
-            {loginError && <p className="error">{loginError}</p>}
                 </div>
+              {loginErrors.password && <p className="error">{loginErrors.password.message}</p>}
+              </div>
+              <a style={{alignSelf:'end', width:"70%", margin:'auto', fontSize:'.85rem'}} href="/forgot-password">Mot de passe oublié ?</a>
+
+              <button type="submit" className="button">
+                Se connecter
+              </button>
+
+              {loginError && <p className="error">{loginError}</p>}
+            </div>
           </form>
         </div>
       </div>

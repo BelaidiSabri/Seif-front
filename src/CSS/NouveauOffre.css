@@ -134,3 +134,8 @@ button:disabled {
 .btn-close {
   margin-left: 10px; /* Adjust the space between the text and the close button */
 }
+.offer-page-title{
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}

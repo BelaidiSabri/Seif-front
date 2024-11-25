@@ -1,0 +1,132 @@
+.buyer-purchase-history {
+    font-family: Arial, sans-serif;
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 900px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  
+  .buyer-purchase-history h2 {
+    font-size: 1.8rem;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .filters input,
+  .filters select,
+  .filters button {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .filters button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .filters button:hover {
+    background-color: #0056b3;
+  }
+  
+  .filters input::placeholder {
+    color: #999;
+  }
+  
+  .analytics {
+    background: #eef6f9;
+    border: 1px solid #cce3f1;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
+  
+  .analytics h3 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+  }
+  
+  .analytics p {
+    font-size: 14px;
+    margin: 5px 0;
+  }
+  
+  .purchases {
+    margin-bottom: 20px;
+  }
+  
+  .purchases h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .purchase {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+  }
+  
+  .purchase p {
+    font-size: 14px;
+    margin: 5px 0;
+  }
+  
+  .purchase ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+  }
+  
+  .purchase ul li {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .error {
+    color: red;
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .pagination button {
+    padding: 8px 12px;
+    font-size: 14px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .pagination button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .pagination span {
+    font-size: 14px;
+    color: #333;
+  }
+  

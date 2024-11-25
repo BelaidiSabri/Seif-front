@@ -5,7 +5,8 @@ import "../../CSS/ProductDetails.css";
 import Cookies from "js-cookie";
 import { useCart } from "../../contexts/CartContext";
 import notAvailableImg from "../../assets/Product-inside.png";
-import { PurchaseModal } from "./PuchaseModal";
+import CommandModal from "./CommandModal";
+
 
 
 const ProductDetails = () => {
@@ -15,11 +16,15 @@ const ProductDetails = () => {
   const [showExchangeModal, setShowExchangeModal] = useState(false);
   const [userExchangeProducts, setUserExchangeProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { addToCart } = useCart();
   const baseURL = "http://localhost:5000";
   const token = Cookies.get("token");
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   // Fetch product details by ID
   useEffect(() => {
@@ -65,14 +70,67 @@ const ProductDetails = () => {
   const openExchangeModal = () => setShowExchangeModal(true);
   const closeExchangeModal = () => setShowExchangeModal(false);
 
-  const handlePayment = () => {
-    alert("Payment Successful!");
-    closeCheckout();
-  };
+  const handlePurchase = async (paymentDetails) => {
+    try {
+      const token = Cookies.get("token");
+      const userId = localStorage.getItem("userId");
 
-  const handlePurchaseSuccess = (purchaseData) => {
-    alert('Achat effectué avec succès!');
-    setShowPurchaseModal(false);
+      // Validate product availability
+      if (product.quantityDispo <= 0) {
+        alert("Produit en rupture de stock");
+        return false;
+      }
+
+      const purchaseData = {
+        buyer: userId,
+        products: [{
+          product: product._id,
+          seller: product.user?._id, // Assuming there's a user field for the seller
+          quantity: 1, // Default to 1 for single product purchase
+          price: product.prix
+        }],
+        totalAmount: product.prix,
+        paymentMethod: paymentDetails.paymentMethod,
+        paymentStatus: paymentDetails.paymentMethod === 'online' ? 'completed' : 'pending'
+      };
+
+      const response = await axios.post(
+        "http://localhost:5000/transactions", 
+        purchaseData, 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      alert('Achat effectué avec succès!');
+      setIsModalOpen(false);
+      return true;
+    } catch (error) {
+      console.error("Transaction error:", error);
+      
+      // Handle specific error cases
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            alert(error.response.data.message || "Données de transaction invalides");
+            break;
+          case 401:
+            alert("Session expirée. Veuillez vous reconnecter");
+            break;
+          case 404:
+            alert("Produit non trouvé ou indisponible");
+            break;
+          default:
+            alert("Échec de la transaction. Veuillez réessayer");
+        }
+      } else {
+        alert("Erreur de connexion. Vérifiez votre connexion internet");
+      }
+      return false;
+    }
   };
 
   const handleExchange = async () => {
@@ -135,12 +193,10 @@ const ProductDetails = () => {
       }
     } else if (product.status === "echange") {
       openExchangeModal();
-      
     } else {
-      setShowPurchaseModal(true);
+      setIsModalOpen(true);
     }
   };
-  
 
   if (!product) return <p>Loading...</p>;
 
@@ -153,15 +209,9 @@ const ProductDetails = () => {
             className="carousel slide"
             data-ride="carousel"
           >
-            <div className="carousel-inner">
-              {product.imageUrls && product.imageUrls.length > 0 ? (
-                product.imageUrls.map((imageUrl, index) => (
-                  <div
-                    key={index}
-                    className={`carousel-item ${index === 0 ? "active" : ""}`}
-                  >
+              <div className="carousel-inner">
                     <img
-                      src={`${baseURL}${imageUrl}`}
+                      src={`${baseURL}${product.images[0]}`}
                       className="d-block w-100 custom-product-image"
                       alt={product.nom}
                       onError={(e) => {
@@ -169,17 +219,6 @@ const ProductDetails = () => {
                         e.target.src = notAvailableImg; 
                       }}
                     />
-                  </div>
-                ))
-              ) : (
-                <div className="carousel-item active">
-                  <img
-                    src="/placeholder.jpg"
-                    alt="Placeholder"
-                    className="d-block w-100 custom-product-image"
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -234,7 +273,7 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {showCheckout && (
+    {/*   {showCheckout && (
         <div className="checkout-modal">
           <div className="checkout-modal-content">
             <h3>Stripe Checkout</h3>
@@ -265,7 +304,7 @@ const ProductDetails = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
 
 {showExchangeModal && (
   <div className="exchange-modal">
@@ -308,15 +347,22 @@ const ProductDetails = () => {
     </div>
   </div>
 )}
-    <PurchaseModal
-  product={product}
-  isOpen={showPurchaseModal}
-  onClose={() => setShowPurchaseModal(false)}
-  onPurchaseSuccess={handlePurchaseSuccess}
-/>
+ <CommandModal 
+        isOpen={isModalOpen} 
+        onClose={closeModal} 
+        onPurchase={handlePurchase}
+        // product={product} // Optional: pass product details to the modal
+      />
 
     </div>
   );
 };
 
 export default ProductDetails;
+
+/*     <PurchaseModal
+  product={product}
+  isOpen={showPurchaseModal}
+  onClose={() => setShowPurchaseModal(false)}
+  onPurchaseSuccess={handlePurchaseSuccess}
+/> */
