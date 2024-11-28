@@ -67,12 +67,49 @@ const userCtrl = {
   },
   getAllUsers: async (req, res) => {
     try {
-      const allUsers = await users.find();
-      res.status(200).send(allUsers);
+      const { page = 1, limit = 10, role, search } = req.query;
+      const query = {};
+      
+      if (role) query.role = role;
+      if (search) {
+        query.$or = [
+          { username: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } }
+        ];
+      }
+  
+      const allUsers = await users.find(query)
+        .select('-password')
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec();
+  
+      const count = await users.countDocuments(query);
+  
+      res.json({
+        allUsers,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+      });
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
   },
+  getUserCounts: async () => {
+    try {
+      const fournisseurCount = await users.countDocuments({ role: "fournisseur" });
+      const clientCount = await users.countDocuments({ role: "client" });
+  
+      return {
+        fournisseurCount,
+        clientCount,
+        total: fournisseurCount + clientCount
+      };
+    } catch (error) {
+      throw new Error(`Failed to get user counts: ${error.message}`);
+    }
+  },
+   
   updateUser: async (req, res) => {
     try {
       const { nom, prenom, email, password, role } = req.body;

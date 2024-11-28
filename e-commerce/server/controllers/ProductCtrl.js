@@ -216,6 +216,23 @@ if (minPrice || maxPrice) {
       });
     }
   },
+  getProductCount: async () => {
+    try {
+      const venteCount = await Product.countDocuments({ status: 'vente' });
+      const donCount = await Product.countDocuments({ status: 'don' });
+      const echangeCount = await Product.countDocuments({ status: 'echange' });
+  
+      return {
+        venteCount,
+        donCount,
+        echangeCount,
+        total: venteCount + donCount + echangeCount
+      };
+    } catch (error) {
+      throw new Error(`Failed to get product counts: ${error.message}`);
+    }
+  },
+  
 
   getMaxPrice: async (req, res) => {
     try {

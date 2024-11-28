@@ -11,6 +11,7 @@ const ExchangeRoute = require('./routes/ExchangeRoute');
 const DonationRoute = require('./routes/DonationRoute');
 const NotificationRoute = require('./routes/NotificationRoute');
 const TransactionRoute = require('./routes/TransactionRoute');
+const AdminRoute = require('./routes/AdminRoute');
 
 const path = require('path');
 require('./db/cnx'); // Ensure your DB connection is set up here
@@ -38,6 +39,7 @@ app.use('/', DonationRoute);
 app.use('/notifications', NotificationRoute);
 app.use('/donation', DonationRoute);
 app.use('/transactions', TransactionRoute);
+app.use('/admin', AdminRoute);
 
 
 

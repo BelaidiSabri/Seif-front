@@ -226,10 +226,61 @@ const updateTransactionStatus = async (req, res) => {
     });
   }
 };
+const getTransactionStats = async () => {
+  try {
+    // Fetch all transactions
+    const transactions = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalOnline: { 
+            $sum: { $cond: [{ $eq: ["$paymentMethod", "online"] }, "$totalAmount", 0] }
+          },
+          totalCash: { 
+            $sum: { $cond: [{ $eq: ["$paymentMethod", "cash"] }, "$totalAmount", 0] }
+          },
+          totalPending: { 
+            $sum: { $cond: [{ $eq: ["$status", "pending"] }, "$totalAmount", 0] }
+          },
+          totalProcessing: { 
+            $sum: { $cond: [{ $eq: ["$status", "processing"] }, "$totalAmount", 0] }
+          },
+          totalShipped: { 
+            $sum: { $cond: [{ $eq: ["$status", "shipped"] }, "$totalAmount", 0] }
+          },
+          totalDelivered: { 
+            $sum: { $cond: [{ $eq: ["$status", "delivered"] }, "$totalAmount", 0] }
+          },
+          totalCancelled: { 
+            $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, "$totalAmount", 0] }
+          },
+          totalEarnings: { $sum: "$totalAmount" }
+        }
+      }
+    ]);
+
+    const stats = transactions[0] || {
+      totalOnline: 0,
+      totalCash: 0,
+      totalPending: 0,
+      totalProcessing: 0,
+      totalShipped: 0,
+      totalDelivered: 0,
+      totalCancelled: 0,
+      totalEarnings: 0
+    };
+
+    return stats;
+  } catch (error) {
+    throw new Error(`Failed to fetch transaction stats: ${error.message}`);
+  }
+};
+
 
 module.exports = {
   createTransaction,
   getSellerEarnings,
   getBuyerPurchases,
-  updateTransactionStatus
+  updateTransactionStatus,
+  getTransactionStats
 };

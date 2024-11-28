@@ -30,7 +30,7 @@ import ProductDetails from "./component/dash-client/ProductDetails";
 import Cart from "./component/dash-client/Cart";
 import { CartProvider } from "./contexts/CartContext";
 import OfferManagement from "./component/dash-client/MyOffer";
-import AdminPanel from "./component/dash-client/adminPanel";
+// import AdminPanel from "./component/dash-client/adminPanel";
 import ForgotPassword from "./component/dash-client/ForgotPassword";
 import ResetPassword from "./component/dash-client/ResetPassword";
 import CartPage from "./component/dash-client/CartPage";
@@ -41,6 +41,7 @@ import ProductDonation from "./component/dash-client/ProductDonation";
 import Test from "./component/dash-client/Test";
 import BuyerPurchaseHistory from "./component/dash-client/BuyerPurchaseHistory";
 import SellerHistory from "./component/dash-client/SellerHistory";
+import AdminPanel from "./component/dash-client/admin-page/AdminPanel";
 
 
 

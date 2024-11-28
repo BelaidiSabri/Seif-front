@@ -411,4 +411,40 @@ exports.deleteAllExchanges = async (req, res) => {
   }
 };
 
+// Get the total count of all exchanges
+// Get the total count of exchanges and a breakdown by status
+exports.getExchangeCount = async () => {
+  try {
+    // Aggregation pipeline to get the total count and breakdown by status
+    const [stats] = await Exchange.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalExchanges: { $sum: 1 },
+          pendingCount: {
+            $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] }
+          },
+          acceptedCount: {
+            $sum: { $cond: [{ $eq: ["$status", "accepted"] }, 1, 0] }
+          },
+          rejectedCount: {
+            $sum: { $cond: [{ $eq: ["$status", "rejected"] }, 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    return {
+      totalExchanges: stats?.totalExchanges || 0,
+      pendingCount: stats?.pendingCount || 0,
+      acceptedCount: stats?.acceptedCount || 0,
+      rejectedCount: stats?.rejectedCount || 0
+    };
+  } catch (error) {
+    throw new Error(`Failed to get exchange counts: ${error.message}`);
+  }
+};
+
+
+
 module.exports = exports;

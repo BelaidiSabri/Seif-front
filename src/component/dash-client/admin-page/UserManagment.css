@@ -1,0 +1,120 @@
+/* General Styling */
+.admin-users-management {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Filters Section */
+.admin-users-filters {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.admin-users-search-input,
+.admin-users-role-filter {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 48%;
+}
+
+.admin-users-search-input:focus,
+.admin-users-role-filter:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Table Styling */
+.admin-users-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-users-table thead {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.admin-users-table th,
+.admin-users-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.admin-users-table th {
+  font-weight: bold;
+}
+
+.admin-users-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.admin-users-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.admin-users-delete-btn {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-users-delete-btn:hover {
+  background-color: #c82333;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.pagination-controls button {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+/* Error Message */
+.error-message {
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+}

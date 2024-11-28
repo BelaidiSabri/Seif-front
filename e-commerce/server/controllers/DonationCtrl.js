@@ -287,5 +287,23 @@ exports.deleteAllDonations = async (req, res) => {
     });
   }
 };
+exports.getDonationCount = async () => {
+  try {
+    // Count donations by status across all users
+    const pendingCount = await Donation.countDocuments({ status: 'pending' });
+    const acceptedCount = await Donation.countDocuments({ status: 'accepted' });
+    const rejectedCount = await Donation.countDocuments({ status: 'rejected' });
+
+    return {
+      pendingCount,
+      acceptedCount,
+      rejectedCount,
+      total: pendingCount + acceptedCount + rejectedCount
+    };
+  } catch (error) {
+    throw new Error(`Failed to get donation counts: ${error.message}`);
+  }
+};
+
 
 module.exports = exports;
