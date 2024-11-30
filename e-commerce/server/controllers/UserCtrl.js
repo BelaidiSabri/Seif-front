@@ -69,8 +69,14 @@ const userCtrl = {
     try {
       const { page = 1, limit = 10, role, search } = req.query;
       const query = {};
-      
+  
+      // Exclude users with the 'admin' role
+      query.role = { $ne: 'admin' };
+  
+      // If a specific role is provided, filter by that role
       if (role) query.role = role;
+  
+      // If search term is provided, apply regex search on username or email
       if (search) {
         query.$or = [
           { username: { $regex: search, $options: 'i' } },
@@ -95,6 +101,7 @@ const userCtrl = {
       return res.status(500).json({ message: error.message });
     }
   },
+  
   getUserCounts: async () => {
     try {
       const fournisseurCount = await users.countDocuments({ role: "fournisseur" });
@@ -112,29 +119,31 @@ const userCtrl = {
    
   updateUser: async (req, res) => {
     try {
-      const { nom, prenom, email, password, role } = req.body;
-
+      const { name, email, phone, address } = req.body;
+  
       const currentUser = await users.findById(req.params.id);
       if (!currentUser) {
         return res.status(404).json({ message: "User not found" });
       }
-
+  
       const updateFields = {};
-      if (nom && nom !== currentUser.nom) updateFields.nom = nom;
-      if (prenom && prenom !== currentUser.prenom) updateFields.prenom = prenom;
+      if (name && name !== currentUser.name) updateFields.name = name;
       if (email && email !== currentUser.email) updateFields.email = email;
-      if (password) {
-        const passwordHash = await bcrypt.hash(password, 10);
-        updateFields.password = passwordHash;
+      if (phone && phone !== currentUser.phone) updateFields.phone = phone;
+      if (address && address !== currentUser.address) updateFields.address = address;
+  
+      // Handle image upload
+      if (req.file) {
+        updateFields.image = `/uploads/products/${req.file.filename}`; // Save the image path
       }
-      if (role && role !== currentUser.role) updateFields.role = role;
-
+  
       await users.findOneAndUpdate({ _id: req.params.id }, updateFields);
-      res.json({ msg: "Updated user" });
+      res.json({ msg: "User updated successfully" });
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
   },
+  
   deleteUser: async (req, res) => {
     try {
       await users.findByIdAndDelete(req.params.id);

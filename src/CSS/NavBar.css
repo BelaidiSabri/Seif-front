@@ -1,10 +1,8 @@
-
-
 .navbar-container {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 10px 20px; /* Add some padding for better spacing */
+  padding: 10px 20px;
 }
 
 .navbar-search {
@@ -13,17 +11,18 @@
   position: relative;
   flex: 1;
   max-width: 600px;
-  margin-left: auto; /* Ensure it is centered by flex properties */
+  margin-left: auto;
   margin-right: auto;
-   /* Ensure it is centered by flex properties */
 }
-.selct{
+
+.selct {
   border-radius: 50px 0px 0px 50px;
   border: 1px solid #00B4CC;
- width: 20rem;
- color:#00B4CC ;
- padding: 10px;
+  width: 20rem;
+  color: #00B4CC;
+  padding: 10px;
 }
+
 .navbar-search input {
   width: 100%;
   padding: 10px 20px;
@@ -39,7 +38,8 @@
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
-  color:#00B4CC ;}
+  color: #00B4CC;
+}
 
 .navbar-icons {
   display: flex;
@@ -50,157 +50,6 @@
   color: rgba(255, 0, 0, 0.616);
   font-size: 24px;
   margin-left: 20px;
-  cursor: pointer;
-}
-/* Follow me for more pens like this! */
-
-/* Tweak to change the look and feel */
-:root {
-  --button-background: dodgerblue;
-  --button-color: white;
-  
-  --dropdown-highlight: dodgerblue;
-  --dropdown-width: 160px;
-  --dropdown-background: white;
-  --dropdown-color: black;
-}
-
-/* Center the planet */
-
-
-/* Boring button styles */
-a.buttonnnnnt {
-  /* Frame */
-  display: inline-block;
-
-  box-sizing: border-box;
-  border: none;
-  color: var(--button-color);
-  font-size: 24px;
-  cursor: pointer;
-  
-}
-
-a.buttonnnnnt:active {
-  filter: brightness(75%);
-}
-
-/* Dropdown styles */
-.dropdo {
-  position: relative;
-  padding: 0;
-  margin-right: 1em;
-  
-  border: none;
-}
-
-.dropdo summary {
-  list-style: none;
-  list-style-type: none;
-
-}
-
-.dropdo > summary::-webkit-details-marker {
-  display: none;
-}
-
-.dropdo summary:focus {
-  outline: none;
-}
-
-.dropdo summary:focus a.buttonnnnnt {
-  border: 2px solid white;
-}
-
-.dropdo summary:focus {
-  outline: none;
-}
-
-.dropdo ul {
-  position: absolute;
-  margin: 20px 0 0 0;
-  padding: 20px 0;
-  width: var(--dropdown-width);
-  left: 50%;
-  margin-left: calc((var(--dropdown-width) / 2)  * -1);
-  box-sizing: border-box;
-  z-index: 2;
-  
-  background: var(--dropdown-background);
-  border-radius: 6px;
-  list-style: none;
-}
-
-.dropdo ul li {
-  padding: 0;
-  margin: 0;
-}
-
-.dropdo ul li a:link, .dropdown ul li a:visited {
-  display: inline-block;
-  padding: 10px 0.8rem;
-  width: 100%;
-  box-sizing: border-box;
-  
-  color: var(--dropdown-color);
-  text-decoration: none;
-}
-
-.dropdo ul li a:hover {
-  background-color: var(--dropdown-highlight);
-  color: var(--dropdown-background);
-}
-
-/* Dropdown triangle */
-.dropdo ul::before {
-  content: ' ';
-  position: absolute;
-  width: 0;
-  height: 0;
-  top: -10px;
-  left: 50%;
-  margin-left: -10px;
-  border-style: solid;
-  border-width: 0 10px 10px 10px;
-  border-color: transparent transparent var(--dropdown-background) transparent;
-}
-
-
-/* Close the dropdown with outside clicks */
-.dropdo > summary::before {
-  display: none;
-}
-
-.dropdo[open] > summary::before {
-    content: ' ';
-    display: block;
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 1;
-}
-.navbarrr{
-  /* padding: 40px; */
-  height: 120px;
-  border-bottom: 1px solid #00B4CC;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-/* ................ */
-
-.navbar-icons {
-  display: flex;
-  align-items: center;
-}
-
-.navbar-icon {
-  margin-left: 1.5rem;
-  font-size: 1.5rem;
   cursor: pointer;
   position: relative;
 }
@@ -221,7 +70,7 @@ a.buttonnnnnt:active {
   top: -0.3rem;
   right: -0.8rem;
 }
-/* //////////////////////// */
+
 .notification-icon {
   position: relative;
   cursor: pointer;
@@ -283,6 +132,103 @@ a.buttonnnnnt:active {
   text-align: center;
   color: #888;
 }
-.notification-wrapper{
+
+.notification-wrapper {
   position: relative;
+}
+
+.navbarrr {
+  height: 120px;
+  border-bottom: 1px solid #00B4CC;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* User Dropdown Styles */
+.user-dropdown-container {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 250px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 1000;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.user-profile img {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
+  object-fit: cover;
+}
+
+.user-profile div {
+  flex-grow: 1;
+}
+
+.user-name {
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.user-email {
+  color: #666;
+  font-size: 0.9em;
+  margin: 5px 0 0;
+}
+
+.user-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  text-decoration: none;
+  color: #333;
+  transition: background-color 0.3s ease;
+  border-radius: 5px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-item svg {
+  margin-right: 10px;
+  color: #00B4CC;
+}
+
+.dropdown-item.logout {
+  color: #d9534f;
+}
+
+.dropdown-item.logout:hover {
+  background-color: #ffebee;
 }

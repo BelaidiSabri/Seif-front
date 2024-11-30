@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
+const mongoose = require('mongoose'); // Add this import
 const User = require('./models/User.model');
 const Chat = require('./models/Chat.model');
 const UserRoute = require('./routes/UserRoute');
@@ -12,8 +13,10 @@ const DonationRoute = require('./routes/DonationRoute');
 const NotificationRoute = require('./routes/NotificationRoute');
 const TransactionRoute = require('./routes/TransactionRoute');
 const AdminRoute = require('./routes/AdminRoute');
+const bcrypt = require('bcrypt');
 
 const path = require('path');
+const UserModel = require('./models/User.model');
 require('./db/cnx'); // Ensure your DB connection is set up here
 
 const app = express();
@@ -29,7 +32,6 @@ app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
 let users = [];
 app.use("/user", UserRoute);
 app.use("/chat" , ChatRoute);
@@ -40,8 +42,6 @@ app.use('/notifications', NotificationRoute);
 app.use('/donation', DonationRoute);
 app.use('/transactions', TransactionRoute);
 app.use('/admin', AdminRoute);
-
-
 
 io.on('connection', (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
@@ -93,3 +93,46 @@ io.on('connection', (socket) => {
 server.listen(5000, () => {
   console.log('Server is running on port 5000');
 });
+
+async function createAdminUser() {
+  try {
+    // You can modify these or pass as command-line arguments
+    const adminData = {
+      name: 'Admin',
+      email: 'admin@admin.com',
+      password: 'adminadmin',
+      role: 'admin'
+    };
+
+    // Hash the password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(adminData.password, saltRounds);
+
+    // Find and update existing admin, or create new if not exists
+    const updatedAdmin = await UserModel.findOneAndUpdate(
+      { email: adminData.email }, 
+      {
+        name: adminData.name,
+        password: hashedPassword,
+        role: adminData.role
+      },
+      { 
+        upsert: true,  // Create new document if not found
+        new: true      // Return the modified document
+      }
+    );
+
+    console.log('Admin user created/updated successfully!');
+    console.log('Updated Admin Details:', {
+      name: updatedAdmin.name,
+      email: updatedAdmin.email,
+      role: updatedAdmin.role
+    });
+
+  } catch (error) {
+    console.error('Error creating/updating admin user:', error);
+  }
+}
+
+// Run the function
+// createAdminUser();

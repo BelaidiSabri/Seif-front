@@ -116,7 +116,7 @@ const UserManagement = () => {
           <option value="">Tous les rôles</option>
           <option value="client">Client</option>
           <option value="fournisseur">Fournisseur</option>
-          <option value="admin">Admin</option>
+          {/* <option value="admin">Admin</option> */}
         </select>
       </div>
 

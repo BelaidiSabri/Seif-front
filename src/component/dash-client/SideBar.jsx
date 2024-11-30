@@ -1,26 +1,41 @@
-
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // useNavigate instead of useHistory
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import axios from 'axios';
 import '../../CSS/SideBar.css';
 
 function Sidebar() {
-  const navigate = useNavigate(); // useNavigate hook
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState(null); // Initialize state for user data
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = Cookies.get("token");
+        if (token) {
+          const response = await axios.get('http://localhost:5000/user/infor', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setUserData(response.data); // Set user data in state
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   function deleteCookie(name) {
     document.cookie = name + '=; Max-Age=0; path=/';
-}
+  }
 
-
-// Function to handle deconnexion
-const handleLogout = () => {
-  // Remove tokens or other logout logic
-  localStorage.removeItem('authToken');
-  deleteCookie('token');
-  
-  navigate('/login'); // Change the route
-  window.location.reload(); // Force a full reload to update the state
-};
-
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    deleteCookie('token');
+    navigate('/login');
+    window.location.reload();
+  };
 
   return (
     <div>
@@ -29,6 +44,14 @@ const handleLogout = () => {
           <span><img src='/logo.png' style={{ width: "10rem", height: '7rem' }} alt="logo" /></span>
         </header>
         <ul className="navv">
+          {/* Conditionally render the "ADMIN" link */}
+          {userData && userData.role === "admin" && (
+            <li>
+              <Link to="/admin">
+                <i className="fa-solid fa-network-wired"></i> ADMIN
+              </Link>
+            </li>
+          )}
           <li>
             <Link to="/">
               <i className="fa-solid fa-laptop"></i> Dashboard
@@ -36,14 +59,9 @@ const handleLogout = () => {
           </li>
           <li>
             <Link to="/Products">
-            <i className="fa-solid fa-box"></i>Produits
+              <i className="fa-solid fa-box"></i> Produits
             </Link>
           </li>
-          {/* <li>
-            <Link to="/Accueil">
-              <i className="fa-solid fa-house"></i> Fil Accueil
-            </Link>
-          </li> */}
           <li>
             <Link to="/Offer">
               <i className="fa-solid fa-money-check-dollar"></i> Mes Offres
@@ -51,19 +69,17 @@ const handleLogout = () => {
           </li>
           <li>
             <Link to="/ordre">
-            <i className="fa-solid fa-clipboard-list"></i> Ordres 
+              <i className="fa-solid fa-clipboard-list"></i> Ordres
             </Link>
           </li>
           <li>
             <Link to="/exchange">
-            <i class="fa-solid fa-right-left"></i>
-            Echanges
+              <i className="fa-solid fa-right-left"></i> Echanges
             </Link>
           </li>
           <li>
             <Link to="/don">
-            <i class="fa-solid fa-gift"></i>
-            don
+              <i className="fa-solid fa-gift"></i> Don
             </Link>
           </li>
           <li>
@@ -72,13 +88,6 @@ const handleLogout = () => {
             </Link>
           </li>
         </ul>
-
-        {/* Add Déconnexion button here */}
-        <div className="logout-section">
-          <button className="logout-button" onClick={handleLogout}>
-            <i className="fa-solid fa-sign-out-alt"></i> Déconnexion
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const userCtrl = require("../controllers/userCtrl");
 const auth = require('../middleware/auth');
+const upload = require("../middleware/upload");
 
 // User registration and login
 router.post('/register', userCtrl.register);
@@ -18,7 +19,9 @@ router.get('/all' , userCtrl.getAllUsers)
 router.delete('/deleteusers/:id', userCtrl.deleteUser);
 
 // Update user
-router.put('/updateusers/:id', auth, userCtrl.updateUser);
+// router.put('/updateusers/:id', auth, userCtrl.updateUser);
+router.put('/updateusers/:id', auth, upload.single('image'), userCtrl.updateUser);
+
 
 // Cart management
 router.post('/cart/add', auth, userCtrl.addToCart);

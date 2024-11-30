@@ -1,78 +1,166 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../../CSS/NavBar.css";
-import { FaBell, FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
+import { FaBell, FaShoppingCart, FaUser, FaSignOutAlt } from "react-icons/fa";
 import { useCart } from "../../contexts/CartContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "../../contexts/NotificationContext";
-import NotificationDropdown from "./NotificationDropdown";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const NavBar = () => {
   const { cartItemCount } = useCart();
-  const { unreadCount, notifications, markAsRead, loading } = useNotifications();
-  const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownRef = useRef(null);
+  const { unreadCount, notifications, markAsRead, loading } =
+    useNotifications();
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const userDropdownRef = useRef(null);
+  const navigate = useNavigate();
 
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-    if (!showDropdown && unreadCount > 0) {
-      markAsRead();
-    }
-  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = Cookies.get("token");
+        if (token) {
+          const response = await axios.get("http://localhost:5000/user/infor", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUserData(response.data);
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des données utilisateur :",
+          error
+        );
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setShowDropdown(false);
+    if (
+      userDropdownRef.current &&
+      !userDropdownRef.current.contains(event.target)
+    ) {
+      setShowUserDropdown(false);
     }
   };
 
   useEffect(() => {
-    if (showDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showDropdown]);
+  }, []);
+
+  function deleteCookie(name) {
+    document.cookie = name + "=; Max-Age=0; path=/";
+  }
+
+  const handleLogout = () => {
+    // Suppression des tokens ou autres logiques de déconnexion
+    localStorage.removeItem("authToken");
+    deleteCookie("token");
+
+    navigate("/login"); // Changer la route
+    window.location.reload();
+  };
+
+  const toggleUserDropdown = () => {
+    setShowUserDropdown(!showUserDropdown);
+  };
 
   return (
     <nav className="navbarrr">
       <div className="navbar-container">
         <div className="navbar-icons">
+          {/* Icône du panier */}
           <Link to="/Cart" className="navbar-icon">
             <FaShoppingCart />
-            {cartItemCount > 0 && <span className="cart-count">{cartItemCount}</span>}
+            {cartItemCount > 0 && (
+              <span className="cart-count">{cartItemCount}</span>
+            )}
           </Link>
-          <div className="notification-wrapper" ref={dropdownRef}>
-            <div className="navbar-icon">
-              <FaBell onClick={toggleDropdown} />
-              {unreadCount > 0 && <span className="cart-count">{unreadCount}</span>}
-            </div>
-            {showDropdown && (
-              <NotificationDropdown
-                notifications={notifications}
-                loading={loading}
-                onClose={() => setShowDropdown(false)} 
-              />
+
+          {/* Icône des notifications */}
+          <div className="navbar-icon">
+            <FaBell
+              onClick={() => {
+                /* Implémenter la logique de basculement des notifications */
+              }}
+            />
+            {unreadCount > 0 && (
+              <span className="cart-count">{unreadCount}</span>
             )}
           </div>
-          <details className="dropdo">
-            <summary role="button">
-              <Link to="/profile" className="buttonnnnnt">
-                <img
-                  src="/ranger-ses-livres_900.jpg"
-                  alt="User Avatar"
-                  style={{
-                    height: "35px",
-                    width: "35px",
-                    borderRadius: "80px",
-                    margin: "0px 20px",
-                  }}
-                />
-              </Link>
-            </summary>
-          </details>
+
+          {/* Menu déroulant utilisateur */}
+          <div className="user-dropdown-container" ref={userDropdownRef}>
+            <div className="navbar-icon" onClick={toggleUserDropdown}>
+              <img
+                src={
+                  userData.image
+                    ? `http://localhost:5000${userData.image}`
+                    : "/ranger-ses-livres_900.jpg"
+                } // Utiliser l'image par défaut si l'image utilisateur est manquante
+                alt="Avatar de l'utilisateur"
+                style={{
+                  height: "35px",
+                  width: "35px",
+                  borderRadius: "50%",
+                  margin: "0px 20px",
+                  cursor: "pointer",
+                }}
+              />
+            </div>
+
+            {showUserDropdown && (
+              <div className="user-dropdown">
+                {userData ? (
+                  <>
+                    <div className="user-profile">
+                      <img
+                        src={
+                          userData.image
+                            ? `http://localhost:5000${userData.image}`
+                            : "/ranger-ses-livres_900.jpg"
+                        } // Utiliser l'image par défaut si l'image utilisateur est manquante
+                        alt="Avatar de l'utilisateur"
+                        style={{
+                          height: "50px",
+                          width: "50px",
+                          borderRadius: "50%",
+                          marginRight: "15px",
+                        }}
+                      />
+                      <div>
+                        <div className="user-name">{userData.name}</div>
+                        <div className="user-email">{userData.email}</div>
+                      </div>
+                    </div>
+
+                    <div className="user-actions">
+                      <Link to="/profile" className="dropdown-item">
+                        <FaUser /> Profil
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="dropdown-item logout"
+                      >
+                        <FaSignOutAlt /> Déconnexion
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="user-actions">
+                    <Link to="/login" className="dropdown-item">
+                      <FaUser /> Connexion
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </nav>

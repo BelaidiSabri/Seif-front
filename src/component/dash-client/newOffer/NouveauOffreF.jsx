@@ -54,6 +54,9 @@ const NouveauOffreF = ({
     }
   }, [submitError]);
 
+
+
+
   const token = Cookies.get("token");
 
   useEffect(() => {
