@@ -9,10 +9,10 @@ import Cookies from "js-cookie";
 
 const NavBar = () => {
   const { cartItemCount } = useCart();
-  const { unreadCount, notifications, markAsRead, loading } =
-    useNotifications();
+  const { unreadCount } = useNotifications();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const userDropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -31,6 +31,8 @@ const NavBar = () => {
           "Erreur lors de la récupération des données utilisateur :",
           error
         );
+      } finally {
+        setLoading(false); // Mark loading as complete
       }
     };
 
@@ -54,15 +56,15 @@ const NavBar = () => {
   }, []);
 
   function deleteCookie(name) {
-    document.cookie = name + "=; Max-Age=0; path=/";
+    document.cookie = `${name}=; Max-Age=0; path=/`;
   }
 
   const handleLogout = () => {
-    // Suppression des tokens ou autres logiques de déconnexion
+    // Clear tokens or other logout logic
     localStorage.removeItem("authToken");
     deleteCookie("token");
 
-    navigate("/login"); // Changer la route
+    navigate("/login"); // Redirect to login
     window.location.reload();
   };
 
@@ -74,7 +76,7 @@ const NavBar = () => {
     <nav className="navbarrr">
       <div className="navbar-container">
         <div className="navbar-icons">
-          {/* Icône du panier */}
+          {/* Cart Icon */}
           <Link to="/Cart" className="navbar-icon">
             <FaShoppingCart />
             {cartItemCount > 0 && (
@@ -82,36 +84,36 @@ const NavBar = () => {
             )}
           </Link>
 
-          {/* Icône des notifications */}
+          {/* Notifications Icon */}
           <div className="navbar-icon">
-            <FaBell
-              onClick={() => {
-                /* Implémenter la logique de basculement des notifications */
-              }}
-            />
+            <FaBell />
             {unreadCount > 0 && (
               <span className="cart-count">{unreadCount}</span>
             )}
           </div>
 
-          {/* Menu déroulant utilisateur */}
+          {/* User Dropdown */}
           <div className="user-dropdown-container" ref={userDropdownRef}>
             <div className="navbar-icon" onClick={toggleUserDropdown}>
-              <img
-                src={
-                  userData.image
-                    ? `http://localhost:5000${userData.image}`
-                    : "/ranger-ses-livres_900.jpg"
-                } // Utiliser l'image par défaut si l'image utilisateur est manquante
-                alt="Avatar de l'utilisateur"
-                style={{
-                  height: "35px",
-                  width: "35px",
-                  borderRadius: "50%",
-                  margin: "0px 20px",
-                  cursor: "pointer",
-                }}
-              />
+              {loading ? (
+                <div className="loading-spinner">Chargement...</div>
+              ) : (
+                <img
+                  src={
+                    userData?.image
+                      ? `http://localhost:5000${userData.image}`
+                      : "/ranger-ses-livres_900.jpg"
+                  }
+                  alt="Avatar de l'utilisateur"
+                  style={{
+                    height: "35px",
+                    width: "35px",
+                    borderRadius: "50%",
+                    margin: "0px 20px",
+                    cursor: "pointer",
+                  }}
+                />
+              )}
             </div>
 
             {showUserDropdown && (
@@ -121,10 +123,10 @@ const NavBar = () => {
                     <div className="user-profile">
                       <img
                         src={
-                          userData.image
+                          userData?.image
                             ? `http://localhost:5000${userData.image}`
                             : "/ranger-ses-livres_900.jpg"
-                        } // Utiliser l'image par défaut si l'image utilisateur est manquante
+                        }
                         alt="Avatar de l'utilisateur"
                         style={{
                           height: "50px",
