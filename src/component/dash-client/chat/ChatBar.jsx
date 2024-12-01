@@ -5,6 +5,7 @@ import AddContact from "./AddContact";
 const ChatBar = ({ selectContact, currentUser }) => {
   const [contacts, setContacts] = useState([]);
   const [selectedContactId, setSelectedContactId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef(null);
 
   // Fetch contacts on component mount
@@ -26,20 +27,12 @@ const ChatBar = ({ selectContact, currentUser }) => {
 
   // Open modal
   const openModal = () => {
-    const modalElement = modalRef.current;
-    if (modalElement) {
-      const modal = new window.bootstrap.Modal(modalElement);
-      modal.show();
-    }
+    setIsModalOpen(true);
   };
 
   // Close modal
   const closeModal = () => {
-    const modalElement = modalRef.current;
-    if (modalElement) {
-      const modal = window.bootstrap.Modal.getInstance(modalElement);
-      modal.hide();
-    }
+    setIsModalOpen(false);
   };
 
   // Add a new contact
@@ -97,46 +90,56 @@ const ChatBar = ({ selectContact, currentUser }) => {
           </div>
 
           {/* Modal for adding a contact */}
-          <div
-            className="modal fade"
-            ref={modalRef}
-            id="exampleModalCenter"
-            tabIndex="-1"
-            aria-labelledby="exampleModalCenterTitle"
-            aria-hidden="true"
-          >
-            <div className="modal-dialog modal-dialog-centered" role="document">
-              <div className="modal-content" style={{ maxWidth: "600px" }}>
-                <div className="modal-header">
-                  <h5 className="modal-title" id="exampleModalCenterTitle">
-                    Ajouter un contact
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <AddContact
-                    currentUser={currentUser}
-                    onAddContact={handleAddContact}
-                  />
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                    // onClick={()=>{window.location.reload()}}
-                  >
-                    Fermer
-                  </button>
+          {isModalOpen && (
+            <div 
+              className="modal contact-modal show" 
+              style={{ 
+                display: 'block', 
+                backgroundColor: 'rgba(0,0,0,0.5)', 
+                position: 'fixed', 
+                top: 0, 
+                left: 0, 
+                width: '100%', 
+                height: '100%', 
+                zIndex: 1050 
+              }}
+              onClick={closeModal}
+            >
+              <div 
+                className="modal-dialog contact-modal-dialog modal-dialog-centered" 
+                onClick={(e) => e.stopPropagation()}
+                style={{ maxWidth: '600px', margin: '1.75rem auto' }}
+              >
+                <div className="modal-content contact-modal-content">
+                  <div className="modal-header contact-modal-header">
+                    <h5 className="modal-title contact-modal-title">
+                      Ajouter un contact
+                    </h5>
+                    <button
+                      type="button"
+                      className="btn-close contact-modal-close"
+                      onClick={closeModal}
+                    ></button>
+                  </div>
+                  <div className="modal-body contact-modal-body">
+                    <AddContact
+                      currentUser={currentUser}
+                      onAddContact={handleAddContact}
+                    />
+                  </div>
+                  <div className="modal-footer contact-modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary contact-modal-cancel-btn"
+                      onClick={closeModal}
+                    >
+                      Fermer
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Contact list */}

@@ -1,87 +1,139 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './AddContact.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./AddContact.css";
 
-
-const AddContact = ({ currentUser }) => {
+const AddContact = ({ currentUser, onAddContact }) => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [searchEmail, setSearchEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const [searchEmail, setSearchEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [userContacts, setUserContacts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch all users and the current user's contacts from the server
     const fetchUsersAndContacts = async () => {
       try {
-        const usersResponse = await axios.get('http://localhost:5000/user/all');
-        const contactsResponse = await axios.get(`http://localhost:5000/user/contacts/${currentUser.id}`);
-        console.log('contact' , contactsResponse.data)
-        if (usersResponse.data) {
-          const filtered = usersResponse.data.filter(user => user._id !== currentUser.id);
+        console.log("Fetching all users and contacts...");
+
+        // Fetch all users
+        const usersResponse = await axios.get("http://localhost:5000/user/all");
+        console.log("Users fetched:", usersResponse.data);
+
+        // Fetch the current user's contacts
+        const contactsResponse = await axios.get(
+          `http://localhost:5000/user/contacts/${currentUser.id}`
+        );
+        console.log("User contacts fetched:", contactsResponse.data);
+
+        // Filter users (exclude the current user)
+        if (usersResponse.data.allUsers) {
+          const filtered = usersResponse.data.allUsers.filter(
+            (user) => user._id !== currentUser.id
+          );
           setUsers(filtered);
-          setFilteredUsers(filtered); // Initialize filtered users
+          setFilteredUsers(filtered);
         }
-        
+
+        // Set the user's contacts
         if (contactsResponse.data) {
-          console.log('userContact:' , userContacts)
           setUserContacts(contactsResponse.data);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
+        setMessage("Failed to fetch users or contacts.");
       }
     };
 
     fetchUsersAndContacts();
   }, [currentUser]);
 
-  const handleAddContact = async (contactId) => {
+  const handleAddContact = async (user) => {
     try {
-      const response = await axios.post('http://localhost:5000/user/add-contact', {
-        userId: currentUser.id,
-        contactId
-      });
-      setMessage(response.data.message);
-      
-      // Add the contact to the user's contacts list
-      setUserContacts(prevContacts => [...prevContacts, contactId]);
+      setLoading(true);
+      console.log("Adding contact:", user);
+
+      const response = await axios.post(
+        "http://localhost:5000/user/add-contact",
+        {
+          userId: currentUser.id,
+          contactId: user._id,
+        }
+      );
+
+      console.log("Add contact response:", response.data);
+
+      if (response.data.message === "Contact added successfully.") {
+        setMessage("Contact ajouté avec succès");
+        setUserContacts((prev) => [...prev, user]); // Update the local state
+
+        // Notify parent component if required
+        if (onAddContact) {
+          onAddContact(user);
+        }
+      } else {
+        setMessage(response.data.message || "Erreur lors de l'ajout du contact.");
+      }
     } catch (error) {
-      setMessage('Error adding contact');
-      console.error('Error adding contact:', error);
+      console.error("Error adding contact:", error);
+      setMessage("Erreur lors de l'ajout du contact.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchEmail(query);
-    const filtered = users.filter(user => user.email.toLowerCase().includes(query));
+    const filtered = users.filter(
+      (user) =>
+        user.email.toLowerCase().includes(query) ||
+        user.name.toLowerCase().includes(query)
+    );
     setFilteredUsers(filtered);
+    console.log("Search query:", query, "Filtered users:", filtered);
   };
 
-  const isAlreadyContact = (contactId) => {
-    return userContacts.some(contact => contact._id === contactId);
+  const isAlreadyContact = (userId) => {
+    return userContacts.some((contact) => contact._id === userId);
   };
 
   return (
     <div className="add-contact">
-      {/* <h3>Add Contact</h3> */}
-      <input 
-        type="text" 
-        placeholder="Rechercher par email..." 
+      <input
+        type="text"
+        placeholder="Rechercher par email ou nom..."
         value={searchEmail}
         onChange={handleSearch}
+        className="form-control mb-3"
       />
-      <ul>
-        {filteredUsers.map(user => (
-          <li key={user._id}>
-            {user.name} ({user.email})
-            {!isAlreadyContact(user._id) && (
-              <button onClick={() => handleAddContact(user._id)}>Ajouter un contact</button>
-            )}
-          </li>
-        ))}
-      </ul>
-      {message && <p>{message}</p>}
+      {filteredUsers.length === 0 ? (
+        <p>Aucun utilisateur trouvé</p>
+      ) : (
+        <ul className="list-group">
+          {filteredUsers.map((user) => (
+            <li
+              key={user._id}
+              className="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <strong>{user.name}</strong>
+                <br />
+                <small>{user.email}</small>
+              </div>
+              {!isAlreadyContact(user._id) && (
+                <button
+                  onClick={() => handleAddContact(user)}
+                  className="btn btn-primary btn-sm"
+                  disabled={loading}
+                >
+                  {loading ? "Ajout en cours..." : "Ajouter"}
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {message && <p className="mt-3 text-center">{message}</p>}
     </div>
   );
 };

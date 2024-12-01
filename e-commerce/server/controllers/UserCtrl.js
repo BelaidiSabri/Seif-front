@@ -245,17 +245,37 @@ const userCtrl = {
   addContact: async (req, res) => {
     try {
       const { userId, contactId } = req.body;
-      console.log(req.body);
+  
+      // Fetch both users
       const user = await users.findById(userId);
+      const contactUser = await users.findById(contactId);
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+  
+      if (!contactUser) {
+        return res.status(404).json({ message: "Contact user not found." });
+      }
+  
+      // Add contactId to user.contacts if not already present
       if (!user.contacts.includes(contactId)) {
         user.contacts.push(contactId);
         await user.save();
       }
-      res.status(200).json({ message: "Contact added successfully." });
+  
+      // Add userId to contactUser.contacts if not already present
+      if (!contactUser.contacts.includes(userId)) {
+        contactUser.contacts.push(userId);
+        await contactUser.save();
+      }
+  
+      res.status(200).json({ message: "Contact added successfully for both users." });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   },
+  
   searchUser: async (req, res) => {
     try {
       const { email } = req.query;
