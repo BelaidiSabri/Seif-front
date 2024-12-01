@@ -68,7 +68,7 @@ const Dashboard = () => {
     // Fetching products data from API
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/product/products", {
+        const response = await axios.get("http://localhost:5000/product/user/products", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -115,39 +115,45 @@ const Dashboard = () => {
       </div>
       <br />
       <div className="bottom-section">
-        <div className="offersss">
-          <div className="off-h-butt">
-            <h3>
-              Mes derniers offres publics           
-               {/* <span> (Nombre)</span> */}
-            </h3>
-            {/* <button className="consult1-button">Consultez</button> */}
-          </div>
+      <div className="offersss">
+  <div className="off-h-butt">
+    <h3>
+      Mes derniers offres publics
+      {/* <span> (Nombre)</span> */}
+    </h3>
+    {/* <button className="consult1-button">Consultez</button> */}
+  </div>
+  <br />
+  {products.slice(-3).length > 0 ? (
+    products.slice(-3).map((item) => (
+      <div key={item._id} className="offer">
+        <img src={"/livres.jpg"} alt="books" />
+        <div>
+          <span
+            style={{
+              backgroundColor: "#F3BCA6",
+              padding: "5px",
+              borderRadius: "15px",
+              color: "#FF6666",
+            }}
+          >
+            {item.status}
+          </span>
           <br />
-          {products.slice(-3).map((item) => (
-            <div key={item._id} className="offer">
-              <img src={"/livres.jpg"} alt="books" />
-              <div>
-                <span
-                  style={{
-                    backgroundColor: "#F3BCA6",
-                    padding: "5px",
-                    borderRadius: "15px",
-                    color: "#FF6666",
-                  }}
-                >
-                  {item.status}
-                </span>
-                <br />
-                <span className="off-liv">{item.nom}</span>
-              </div>
-              <span className="priceeeee">
-                {item.status === "don" || item.status === "echange" ? item.status : `${item.prix} DT`}
-              </span>
-            </div>
-          ))}
+          <span className="off-liv">{item.nom}</span>
         </div>
-        
+        <span className="priceeeee">
+          {item.status === "don" || item.status === "echange" ? item.status : `${item.prix} DT`}
+        </span>
+      </div>
+    ))
+  ) : (
+    <p style={{ textAlign: "center", color: "#888" }}>
+      Vous n'avez aucune offre récente.
+    </p>
+  )}
+</div>
+
         <div className="stats">
           <h3>
             Statistiques <span>(2023)</span>

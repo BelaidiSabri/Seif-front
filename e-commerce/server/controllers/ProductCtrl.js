@@ -398,7 +398,8 @@ if (minPrice || maxPrice) {
 
   getUserProducts: async (req, res) => {
     try {
-      const { page = 1, limit = 10, userId } = req.query;
+      const { page = 1, limit = 10 } = req.query;
+      const userId = req.query.userId || req.user.id;
   
       if (!userId) {
         return res.status(400).json({ msg: "User ID is required" });

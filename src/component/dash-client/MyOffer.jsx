@@ -10,6 +10,8 @@ const Offer = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedOfferId, setSelectedOfferId] = useState(null);
   const [offers, setOffers] = useState([]);
+  const token = Cookies.get("token");
+
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -28,7 +30,12 @@ const Offer = () => {
       }
 
       const response = await axios.get(
-        `http://localhost:5000/product/user/products?userId=${userId}&page=${page}&limit=10`
+        `http://localhost:5000/product/user/products?userId=${userId}&page=${page}&limit=10`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       const data = response.data;
 

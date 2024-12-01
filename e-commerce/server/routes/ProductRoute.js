@@ -56,7 +56,7 @@ router.put(
 router.delete('/delete/:id', auth, productCtrl.deleteProduct);
 
 // Get logged-in user's products
-router.get('/user/products', productCtrl.getUserProducts);
+router.get('/user/products',auth, productCtrl.getUserProducts);
 
 /*
  * Alternative URL patterns for the same endpoints
