@@ -167,7 +167,7 @@ const ProductDonation = () => {
                             'souhaite vous faire un don' : 
                             'a proposé un don à'}
                         </span>
-                        {donation.userRole === 'requester' && 
+                        {donation.userRole === 'donor' && 
                           <span className="user-name">{donation.donatedTo.email}</span>}
                       </div>
                     </div>

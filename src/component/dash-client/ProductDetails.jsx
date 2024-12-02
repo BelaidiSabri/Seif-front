@@ -47,6 +47,11 @@ const ProductDetails = () => {
         const userId = localStorage.getItem("userId");
         if (userId) {
           const response = await axios.get(`${baseURL}/product/user/products`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }, {
             params: { userId },
           });
           setUserExchangeProducts(
@@ -317,6 +322,7 @@ const ProductDetails = () => {
         <div className="product-selection">
           {userExchangeProducts.map((prod) => (
             <div
+            style={{display:'flex',alignItems:'center'}}
               key={prod._id}
               className={`product-item ${
                 selectedProduct?._id === prod._id ? "selected" : ""
@@ -324,7 +330,8 @@ const ProductDetails = () => {
               onClick={() => setSelectedProduct(prod)}
             >
               <img
-                src={`${baseURL}${prod.imageUrls[0]}`}
+              style={{height:'60px',width:'60px',objectFit:'cover' }}
+                src={`${baseURL}${prod.images[0]}`}
                 alt={prod.nom}
               />
               <h4>{prod.nom}</h4>

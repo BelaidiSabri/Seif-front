@@ -4,6 +4,7 @@ import { FaBell, FaShoppingCart, FaUser, FaSignOutAlt } from "react-icons/fa";
 import { useCart } from "../../contexts/CartContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "../../contexts/NotificationContext";
+import NotificationDropdown from "./NotificationDropdown";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -11,9 +12,11 @@ const NavBar = () => {
   const { cartItemCount } = useCart();
   const { unreadCount } = useNotifications();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const userDropdownRef = useRef(null);
+  const notificationDropdownRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,10 +30,7 @@ const NavBar = () => {
           setUserData(response.data);
         }
       } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des données utilisateur :",
-          error
-        );
+        console.error("Erreur lors de la récupération des données utilisateur :", error);
       } finally {
         setLoading(false); // Mark loading as complete
       }
@@ -46,6 +46,13 @@ const NavBar = () => {
     ) {
       setShowUserDropdown(false);
     }
+
+    if (
+      notificationDropdownRef.current &&
+      !notificationDropdownRef.current.contains(event.target)
+    ) {
+      setShowNotificationDropdown(false);
+    }
   };
 
   useEffect(() => {
@@ -60,16 +67,18 @@ const NavBar = () => {
   }
 
   const handleLogout = () => {
-    // Clear tokens or other logout logic
     localStorage.removeItem("authToken");
     deleteCookie("token");
-
-    navigate("/login"); // Redirect to login
+    navigate("/login");
     window.location.reload();
   };
 
   const toggleUserDropdown = () => {
     setShowUserDropdown(!showUserDropdown);
+  };
+
+  const toggleNotificationDropdown = () => {
+    setShowNotificationDropdown(!showNotificationDropdown);
   };
 
   return (
@@ -85,10 +94,15 @@ const NavBar = () => {
           </Link>
 
           {/* Notifications Icon */}
-          <div className="navbar-icon">
-            <FaBell />
+          <div className="navbar-icon" ref={notificationDropdownRef}>
+            <FaBell onClick={toggleNotificationDropdown} />
             {unreadCount > 0 && (
               <span className="cart-count">{unreadCount}</span>
+            )}
+            {showNotificationDropdown && (
+              <NotificationDropdown
+                onClose={() => setShowNotificationDropdown(false)}
+              />
             )}
           </div>
 

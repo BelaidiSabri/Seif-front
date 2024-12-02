@@ -42,7 +42,9 @@ const NotificationDropdown = ({onClose}) => {
               onClick={() => handleNotificationClick(notification)}
               style={{ cursor: 'pointer' }}
             >
+              <p>
               {notification.message}
+              </p>
               <span className="notification-time">
                 {new Date(notification.createdAt).toLocaleString()}
               </span>

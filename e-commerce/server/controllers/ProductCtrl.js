@@ -94,7 +94,7 @@ const productCtrl = {
     }
   },
 
-  getAllProducts: async (req, res) => {
+ /*  getAllProducts: async (req, res) => {
     try {
       const {
         page = 1,
@@ -215,7 +215,113 @@ if (minPrice || maxPrice) {
         error: error.message 
       });
     }
+  }, */
+
+  getAllProducts: async (req, res) => {
+    try {
+      const {
+        page = 1,
+        limit = 12,
+        category,
+        ville,
+        minPrice,
+        maxPrice,
+        search,
+        status,
+        userProducts,
+        sortBy = 'createdAt',
+        sortOrder = 'desc'
+      } = req.query;
+  
+      // Build query filter
+      const filter = {
+        // Ensure products have 'vente', 'don', or 'echange' status
+        status: { $in: ['vente', 'don', 'echange'] }
+      };
+  
+      // Category filter
+      if (category) filter.categorie = category;
+  
+      // City filter
+      if (ville) filter.ville = ville;
+  
+      // Price range filter
+      if (minPrice || maxPrice) {
+        filter.$or = [
+          {
+            prix: {
+              ...(minPrice && { $gte: Number(minPrice) }),
+              ...(maxPrice && { $lte: Number(maxPrice) })
+            }
+          },
+          ...(minPrice === '0'
+            ? [
+                { prix: { $exists: false } },
+                { prix: null },
+                { status: { $in: ['echange', 'don'] } }
+              ]
+            : [])
+        ];
+      }
+  
+      // User products filter
+      if (userProducts !== undefined && req.user) {
+        if (userProducts === 'false') {
+          filter.user = { $ne: req.user.id };
+        }
+      }
+  
+      // Search filter with advanced matching
+      if (search) {
+        filter.$or = [
+          { nom: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+          { categorie: { $regex: search, $options: 'i' } }
+        ];
+  
+        if (category) {
+          filter.$and = [
+            {
+              $or: [
+                { nom: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } },
+                { categorie: { $regex: search, $options: 'i' } }
+              ]
+            },
+            { categorie: category }
+          ];
+        }
+      }
+  
+      // Sorting options
+      const sort = {};
+      sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+  
+      // Execute query with pagination and population
+      const products = await Product.find(filter)
+        .populate('user', 'username email')
+        .limit(Number(limit))
+        .skip((page - 1) * Number(limit))
+        .sort(sort);
+  
+      // Get total documents count
+      const totalProducts = await Product.countDocuments(filter);
+  
+      res.json({
+        products,
+        totalPages: Math.ceil(totalProducts / limit),
+        currentPage: Number(page),
+        totalProducts,
+        pageSize: Number(limit)
+      });
+    } catch (error) {
+      return res.status(500).json({
+        msg: 'Error fetching products',
+        error: error.message
+      });
+    }
   },
+  
   getProductCount: async () => {
     try {
       const venteCount = await Product.countDocuments({ status: 'vente' });
