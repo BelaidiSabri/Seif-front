@@ -118,6 +118,10 @@ const NavBar = () => {
                       ? `http://localhost:5000${userData.image}`
                       : "/ranger-ses-livres_900.jpg"
                   }
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/ranger-ses-livres_900.jpg";
+                  }}
                   alt="Avatar de l'utilisateur"
                   style={{
                     height: "35px",
@@ -141,6 +145,10 @@ const NavBar = () => {
                             ? `http://localhost:5000${userData.image}`
                             : "/ranger-ses-livres_900.jpg"
                         }
+                        onError={(e) => {
+                          e.target.onerror = null; 
+                          e.target.src = "/ranger-ses-livres_900.jpg";
+                        }}
                         alt="Avatar de l'utilisateur"
                         style={{
                           height: "50px",

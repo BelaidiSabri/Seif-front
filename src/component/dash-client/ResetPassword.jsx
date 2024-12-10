@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import "../../CSS/ResetPassword.css";
 
@@ -9,10 +9,10 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  
+
   // Extract email from query params
   const searchParams = new URLSearchParams(location.search);
-  const email = searchParams.get('email');
+  const email = searchParams.get("email") || "maktba178@gmail.com";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +20,7 @@ const ResetPassword = () => {
     setError("");
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Les mots de passe ne correspondent pas.");
       return;
     }
 
@@ -43,29 +43,29 @@ const ResetPassword = () => {
         setError(data.msg);
       }
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError("Une erreur est survenue. Veuillez réessayer.");
     }
   };
 
   return (
     <div className="reset-password">
       <form onSubmit={handleSubmit}>
-        <h2>Reset Password</h2>
+        <h2>Réinitialiser le mot de passe</h2>
         <input
           type="password"
-          placeholder="New Password"
+          placeholder="Nouveau mot de passe"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           required
         />
         <input
           type="password"
-          placeholder="Confirm Password"
+          placeholder="Confirmer le mot de passe"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-        <button type="submit">Reset Password</button>
+        <button type="submit">Réinitialiser le mot de passe</button>
         {message && <p className="success">{message}</p>}
         {error && <p className="error">{error}</p>}
       </form>

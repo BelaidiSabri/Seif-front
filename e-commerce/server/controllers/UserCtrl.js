@@ -297,7 +297,7 @@ const userCtrl = {
       const user = await users.findOne({ email });
   
       if (!user) {
-        return res.status(404).json({ msg: "User with this email does not exist." });
+        return res.status(404).json({ msg: "Aucun utilisateur avec cet email n'existe." });
       }
   
       // If the email is 'maktba178@gmail.com', send the reset email
@@ -329,13 +329,13 @@ const userCtrl = {
         const mailOptions = {
           from: "info@demomailtrap.com",
           to: user.email,
-          subject: "Password Reset Request",
+          subject: "Demande de réinitialisation du mot de passe",
           html: `
-            <h2>Password Reset Request</h2>
-            <p>You requested a password reset. Please click the link below to reset your password:</p>
-            <a href="${resetURL}">Reset Password</a>
-            <p>This link will expire in 1 hour.</p>
-            <p>If you didn't request this, please ignore this email.</p>
+            <h2>Demande de réinitialisation du mot de passe</h2>
+            <p>Vous avez demandé une réinitialisation de votre mot de passe. Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe :</p>
+            <a href="${resetURL}">Réinitialiser le mot de passe</a>
+            <p>Ce lien expirera dans 1 heure.</p>
+            <p>Si vous n'avez pas fait cette demande, veuillez ignorer cet email.</p>
           `,
         };
   
@@ -343,20 +343,23 @@ const userCtrl = {
         await transporter.sendMail(mailOptions);
   
         res.status(200).json({
-          msg: "Password reset link sent to your email.",
+          msg: "Le lien de réinitialisation du mot de passe a été envoyé à votre email.",
         });
   
       } else {
         // For non-'maktba178@gmail.com' emails, allow direct reset
         res.status(200).json({
-          msg: "You can now reset your password.",
-          email: user.email // Send email back to frontend
+          msg: "Vous pouvez maintenant réinitialiser votre mot de passe.",
+          email: user.email, // Send email back to frontend
         });
       }
     } catch (error) {
-      res.status(500).json({ msg: error.message });
+      res.status(500).json({ msg: "Une erreur est survenue. Veuillez réessayer." });
     }
   },
+  
+
+
     // Method to delete all users
     deleteAllUsers: async (req, res) => {
       try {
@@ -390,7 +393,7 @@ const userCtrl = {
         // Validate new password
         if (newPassword.length < 6) {
             return res.status(400).json({ 
-                msg: 'Password must be at least 6 characters long.' 
+              msg: 'Le mot de passe doit contenir au moins 6 caractères.'
             });
         }
 
@@ -403,7 +406,7 @@ const userCtrl = {
         user.resetPasswordExpires = undefined;
         await user.save();
 
-        res.status(200).json({ msg: 'Password has been reset successfully.' });
+        res.status(200).json({ msg: 'Le mot de passe a été réinitialisé avec succès.' });
 
     } catch (error) {
         res.status(500).json({ msg: error.message });
